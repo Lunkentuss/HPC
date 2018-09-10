@@ -1,4 +1,5 @@
 *.dat
-file_tester
-main
 a.out
+file_tester
+alloc_tester
+printargs_tester
