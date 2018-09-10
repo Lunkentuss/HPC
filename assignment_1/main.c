@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "matrix.h"
+
 #define SIZE 30000
 #define TRUE 1
 #define FALSE 1
@@ -73,37 +75,6 @@ void fragmentation_avoid_true()
     return;
 }
 
-struct matrix{
-    int * asentries;
-    int ** as;
-    int m;
-    int n;
-};
-
-struct matrix * make_matrix(int m, int n)
-{
-    struct matrix * mat = (struct matrix *)malloc(sizeof(struct matrix));
-    int * asentries = (int *)malloc(sizeof(int) * m * n);
-    int ** as = (int **)malloc(sizeof(int *) * m);
-
-    for(int ix = 0, jx = 0 ; ix < m ; ix++, jx+=n)
-        as[ix] = asentries + jx;
-
-    mat->as = as;
-    mat->asentries = asentries;
-    mat->m = m;
-    mat->n = n;
-
-    return(mat);
-};
-
-void free_matrix(struct matrix * mat){
-    free(mat->asentries);
-    free(mat->as);
-
-    return;
-}
-
 int main()
 {
     printf("\n");
@@ -118,7 +89,7 @@ int main()
     //allocate_array_heap();
     //fragmentation_avoid_false();
     //fragmentation_avoid_true();
-    struct matrix * mat = make_matrix(5,10);
+    struct matrix * mat = init_matrix(5,10);
     for(int ix = 0 ; ix < mat->m ; ix++)
     for(int jx = 0 ; jx < mat->n ; jx++)
         mat->as[ix][jx] = ix * jx;
