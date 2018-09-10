@@ -41,9 +41,11 @@ void run_program(char * argv[]) {
 
 int main(int argc, char * argv[])
 {
+    // Check if the number of arguments are valid.
     if (argc == ARG_COUNT) {
         run_program(argv);
     }
+
     else{
         printf("The number of arguments should be equal to: %d\n",
                ARG_COUNT - 1);
