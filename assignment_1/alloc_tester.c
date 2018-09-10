@@ -4,7 +4,7 @@
 
 #include "matrix.h"
 
-#define SIZE 30000
+#define SIZE 50000
 
 void allocate_array_stack()
 {

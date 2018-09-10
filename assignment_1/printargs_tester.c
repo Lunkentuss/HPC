@@ -21,6 +21,11 @@ void run_program(char * argv[]) {
         char * end_ptr;
         long value_l = strtol(value, &end_ptr, BASE);
 
+        if (*end_ptr != '\0') {
+            printf("Invalid value: %s for flag %s\n", value, flag);
+            return;
+        }
+
         if (strcmp(flag, "-a") == 0) {
             a = value_l;
         }
