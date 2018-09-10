@@ -1,11 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 #include "matrix.h"
 
 #define SIZE 30000
-#define TRUE 1
-#define FALSE 1
 
 struct run_flags
 {
@@ -89,7 +88,7 @@ int main()
     //allocate_array_heap();
     //fragmentation_avoid_false();
     //fragmentation_avoid_true();
-    struct matrix * mat = init_matrix(5,10);
+    struct matrix * mat = matrix_init(5,10);
     for(int ix = 0 ; ix < mat->m ; ix++)
     for(int jx = 0 ; jx < mat->n ; jx++)
         mat->as[ix][jx] = ix * jx;
