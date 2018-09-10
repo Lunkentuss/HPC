@@ -1,7 +1,3 @@
-# Ignore all
-*
-
-# Unignore all files with extensions
-!*.*
-
-!makefile
+*.dat
+./file_tester
+./main
