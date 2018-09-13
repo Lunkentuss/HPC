@@ -66,11 +66,7 @@ void write_matrix(FILE * fp, struct matrix * mat)
     fwrite(&mat->m, sizeof(int), 1, fp);
     fwrite(&mat->n, sizeof(int), 1, fp);
 
-    for (int i = 0 ; i < mat->m ; i++) {
-        for (int j = 0 ; j < mat->n ; j++) {
-            fwrite(&mat->as[i][j], sizeof(int), 1, fp);
-        }
-    }
+    fwrite(*mat->as, sizeof(int), mat->m * mat->n, fp);
     return;
 }
 

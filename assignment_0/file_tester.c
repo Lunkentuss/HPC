@@ -20,7 +20,7 @@ int main() {
 
     // Open and write to file
     file = fopen(file_name, "w");
-    int size = 10;
+    int size = 1000;
     struct matrix * mat = multiplication_table(size);
     write_matrix(file, mat);
     fclose(file);
