@@ -1,3 +1,6 @@
+#ifndef MATRIX_H
+# define MATRIX_H
+
 #include <stdbool.h>
 
 struct matrix{
@@ -82,3 +85,5 @@ struct matrix * read_matrix(FILE * fp)
 
     return(mat);
 }
+
+#endif /* MATRIX_H */
