@@ -1,7 +1,7 @@
 #ifndef MATRIX_H
 # define MATRIX_H
 
-#include <stdbool.h>
+# include <stdbool.h>
 
 struct matrix{
     int * asentries;
