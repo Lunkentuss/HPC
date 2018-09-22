@@ -10,7 +10,7 @@ void run_program(char * argv[]) {
 
     // Check if flags are equal
     if (strcmp(argv[1], argv[3]) == 0) {
-        printf("Equal flags are not allowed.\n"); 
+        printf("Equal flags are not allowed.\n");
         return;
     }
 
