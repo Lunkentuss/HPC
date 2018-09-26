@@ -4,7 +4,7 @@
 
 #include "timespec_diff.h"
 
-#define N 400000000
+#define N 1000000000
 
 long int sum_numbers(long int n){
     // Naive approach to summing 1...n numbers and will return a
