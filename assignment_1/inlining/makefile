@@ -5,11 +5,10 @@ I=-I.
 all : inlined mainfile seperatefile
 
 mainfile : mainfile.c
-	$(CC) $(FLAGS) -o mainfile 
+	$(CC) mainfile.c $(FLAGS) -o mainfile 
 
 seperatefile : seperatefile.c seperate_file.h
-	$(CC) $(FLAGS) -o seperatefile 
+	$(CC) seperatefile.c $(FLAGS) -o seperatefile $(I)
 
 inlined : inlined.c
-	$(CC) $(FLAGS) -o inlined
-
+	$(CC) inlined.c $(FLAGS) -o inlined
