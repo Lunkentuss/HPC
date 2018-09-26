@@ -1,6 +1,19 @@
--O0 4 536996565 // Fetches some loop variables from memory.
--O1 0 187074773 // Saves all loop variables in registers
--O2 0 404       // The loop dissapears and the arithmetic sum is calculated at compile time.
--O3 0 429       // Same as -O2
--Os 0 187082505 // As -O1 since saving to registers takes upp less instruction size
--Og 0 329046911 //
+-O0 4s 536996565n 
+// Fetches some loop variables from memory.
+
+-O1 0s 187074773n
+// Saves all loop variables in registers which results in less instructions
+and fetching register values is faster than fetching memory values.
+
+-O2 0s 404n
+// The loop dissapears and the arithmetic sum is calculated at compile time.
+
+-O3 0s 429n
+// Same as -O2
+
+-Os 0s 187082505n
+// As -O1 since loops takes less size but storing the arithmetic sum is not
+efficient since it actually stores the calculated.
+
+-Og 0s 329046911n
+// Fast compilation
