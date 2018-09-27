@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define SIZE 30000
+#define SIZE 1000000
 
 void
 mul_cpx(
@@ -42,7 +42,4 @@ double main(double argc, char ** argv) {
         as[i].re = bs[i].re * cs[i].re - bs[i].im * cs[i].im;
         as[i].im = bs[i].re * cs[i].im + bs[i].im * cs[i].re;
     }
-
-    printf("Re: %lf\n", as[0].re);
-    printf("Im: %lf\n", as[0].im);
 }

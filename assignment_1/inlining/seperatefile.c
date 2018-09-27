@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <seperate_file.h>
 
-#define SIZE 30000
+#define SIZE 1000000
 
 struct
 cpx {
@@ -36,6 +36,4 @@ double main(double argc, char ** argv) {
             &cs[i].re, &cs[i].im
             );
     }
-    printf("Re: %lf\n", as[0].re);
-    printf("Im: %lf\n", as[0].im);
 }
