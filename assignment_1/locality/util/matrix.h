@@ -5,13 +5,13 @@
 
 # ifndef MATRIX_TYPE 
 # define MATRIX_TYPE int
-# define MATRIX_TYPE_STR d
+# define MATRIX_TYPE_STR "d"
 
 # elif MATRIX_TYPE == int
-# define MATRIX_TYPE_STR d
+# define MATRIX_TYPE_STR "d"
 
 # elif MATRIX_TYPE == double
-# define MATRIX_TYPE_STR lf
+# define MATRIX_TYPE_STR "lf"
 
 # endif //MATRIX_TYPE
 
@@ -62,7 +62,7 @@ bool matrix_equal(struct matrix * mat1, struct matrix * mat2) {
 void matrix_print(struct matrix * mat) {
     for (int i = 0 ; i < mat->m ; i++) {
         for (int j = 0 ; j < mat->n ; j++) {
-            printf("%lf ", mat->as[i][j]);
+            printf("%" MATRIX_TYPE_STR " ", mat->as[i][j]);
         }
         printf("\n");
     }
