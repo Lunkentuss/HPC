@@ -10,7 +10,6 @@ if len(sys.argv) < 2:
 
 n = int(sys.argv[1])
 
-
 start = time.time()
 
 for i in range(n):
