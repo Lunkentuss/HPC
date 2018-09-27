@@ -1,0 +1,2 @@
+-O0 is 20% slower for column
+-O2 is equal
