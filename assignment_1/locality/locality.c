@@ -4,7 +4,7 @@
 #define MATRIX_TYPE double
 #include <matrix.h>
 
-#define SIZE 1000
+#define SIZE 10000
 
 /* Prints a vector of type MATRIX_TYPE */
 void vec_print(MATRIX_TYPE * vec, int count) {
