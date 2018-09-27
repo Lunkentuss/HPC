@@ -60,20 +60,18 @@ col_sums(
 
 /* Calculates column sum of a matrix less naive way*/
 void
-void
-col_sums(
+col_sums_new(
   double * sums,
   const double ** matrix,
   size_t nrs,
   size_t ncs
   )
 {
-  for ( size_t jx=0; jx < ncs; ++jx ) {
-    double sum = 0;
-    for ( size_t ix=0; ix < nrs; ++ix )
-      sum += matrix[ix][jx];
-    sums[jx] = sum;
-  }
+    for ( size_t ix=0; ix < nrs; ++ix ){
+        for ( size_t jx=0; jx < ncs; ++jx ) {
+            sums[jx] += matrix[ix][jx];
+        }
+    }
 }
 
 int
@@ -86,7 +84,8 @@ main(int argc, char ** argv) {
     double * sum_rows = (double *)malloc(sizeof(double) * SIZE);
     double * sum_cols = (double *)malloc(sizeof(double) * SIZE);
     /* row_sums(sum_rows, (const double **)mat->as, SIZE, SIZE); */
-    col_sums(sum_cols, (const double **)mat->as, SIZE, SIZE);
+    /* col_sums(sum_cols, (const double **)mat->as, SIZE, SIZE); */
+    col_sums_new(sum_cols, (const double **)mat->as, SIZE, SIZE);
 
     // print
     /* vec_print(sum_rows, SIZE); */

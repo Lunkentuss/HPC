@@ -10,7 +10,7 @@ if len(sys.argv) < 2:
 
 n = int(sys.argv[1])
 
-for name in ["rowO0", "rowO2", "colO0", "colO2"]:
+for name in ["rowO0", "rowO2", "colO0", "colO2", "colO0_new", "colO2_new"]:
 
     start = time.time()
 
