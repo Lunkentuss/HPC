@@ -7,3 +7,12 @@ HDD:
 SDD:
 	write: 6.15 s
 	read:  8.88 s
+
+==============
+==============
+
+Copy of include folder:
+HDD:
+	5.110 s
+SDD:
+	4.955 s
