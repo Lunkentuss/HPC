@@ -1,19 +1,22 @@
 #ifndef MATRIX_H
 # define MATRIX_H
 
-# include <stdbool.h>
+#include <stdbool.h>
 
-# ifndef MATRIX_TYPE 
-# define MATRIX_TYPE int
-# define MATRIX_TYPE_STR "d"
+#define MATRIX_TYPE_INT int
+#define MATRIX_TYPE_DOUBLE double
 
-# elif MATRIX_TYPE == int
-# define MATRIX_TYPE_STR "d"
+#ifndef MATRIX_TYPE 
+    #define MATRIX_TYPE int
+    #define MATRIX_TYPE_STR "d"
 
-# elif MATRIX_TYPE == double
-# define MATRIX_TYPE_STR "lf"
+#elif MATRIX_TYPE == MATRIX_TYPE_INT
+    #define MATRIX_TYPE_STR "d"
 
-# endif //MATRIX_TYPE
+#elif MATRIX_TYPE == MATRIX_TYPE_INT
+    #define MATRIX_TYPE_STR "lf"
+
+#endif //MATRIX_TYPE
 
 struct matrix{
     MATRIX_TYPE * asentries;

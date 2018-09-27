@@ -4,7 +4,7 @@
 #define MATRIX_TYPE double
 #include <matrix.h>
 
-#define SIZE 10000
+#define SIZE 100
 
 /* Prints a vector of type MATRIX_TYPE */
 void vec_print(MATRIX_TYPE * vec, int count) {
@@ -83,15 +83,15 @@ main(int argc, char ** argv) {
     // Calculate row and column sums
     double * sum_rows = (double *)malloc(sizeof(double) * SIZE);
     double * sum_cols = (double *)malloc(sizeof(double) * SIZE);
-    /* row_sums(sum_rows, (const double **)mat->as, SIZE, SIZE); */
-    /* col_sums(sum_cols, (const double **)mat->as, SIZE, SIZE); */
+    row_sums(sum_rows, (const double **)mat->as, SIZE, SIZE);
+    col_sums(sum_cols, (const double **)mat->as, SIZE, SIZE);
     col_sums_new(sum_cols, (const double **)mat->as, SIZE, SIZE);
 
     // print
-    /* vec_print(sum_rows, SIZE); */
-    /* printf("\n\n"); */
-    /* vec_print(sum_cols, SIZE); */
-    /* printf("\n\n"); */
-    /* matrix_print(mat); */
+    vec_print(sum_rows, SIZE);
+    printf("\n\n");
+    vec_print(sum_cols, SIZE);
+    printf("\n\n");
+    matrix_print(mat);
     return(0);
 }
