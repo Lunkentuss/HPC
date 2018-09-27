@@ -5,5 +5,5 @@ HDD:
 	read:  14.13 s
 
 SDD:
-	write: 11.45 s
-	read:  14.13 s
+	write: 6.15 s
+	read:  8.88 s
