@@ -1,0 +1,9 @@
+1000 writes/reads:
+
+HDD:
+	write: 11.45 s
+	read:  14.13 s
+
+SDD:
+	write: 11.45 s
+	read:  14.13 s
