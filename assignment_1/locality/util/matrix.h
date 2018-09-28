@@ -3,17 +3,19 @@
 
 #include <stdbool.h>
 
-#define MATRIX_TYPE_INT int
-#define MATRIX_TYPE_DOUBLE double
+#define MATRIX_TYPE_INT 0
+#define MATRIX_TYPE_DOUBLE 1
 
-#ifndef MATRIX_TYPE 
+#ifndef MATRIX_TYPE_ENUM
     #define MATRIX_TYPE int
     #define MATRIX_TYPE_STR "d"
 
-#elif MATRIX_TYPE == MATRIX_TYPE_INT
+#elif MATRIX_TYPE_ENUM == MATRIX_TYPE_INT
+    #define MATRIX_TYPE int
     #define MATRIX_TYPE_STR "d"
 
-#elif MATRIX_TYPE == MATRIX_TYPE_INT
+#elif MATRIX_TYPE_ENUM == MATRIX_TYPE_DOUBLE
+    #define MATRIX_TYPE double
     #define MATRIX_TYPE_STR "lf"
 
 #endif //MATRIX_TYPE

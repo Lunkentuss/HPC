@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define MATRIX_TYPE double
+#define MATRIX_TYPE_ENUM 1 // Create matrix of type double
 #include <matrix.h>
 
 #define SIZE 100
