@@ -86,11 +86,19 @@
     #####:   81:    mult_table(mat);
         -:   82:
         -:   83:    // Calculate row and column sums
+<<<<<<< HEAD
     #####:   84:    double * sum_rows = (double *)malloc(sizeof(double) * SIZE);
     #####:   85:    double * sum_cols = (double *)malloc(sizeof(double) * SIZE);
         -:   86:    /* row_sums(sum_rows, (const double **)mat->as, SIZE, SIZE); */
         -:   87:    /* col_sums(sum_cols, (const double **)mat->as, SIZE, SIZE); */
     #####:   88:    col_sums_new(sum_cols, (const double **)mat->as, SIZE, SIZE);
+=======
+        1:   84:    double * sum_rows = (double *)malloc(sizeof(double) * SIZE);
+        1:   85:    double * sum_cols = (double *)malloc(sizeof(double) * SIZE);
+        -:   86:    /* row_sums(sum_rows, (const double **)mat->as, SIZE, SIZE); */
+        -:   87:    /* col_sums(sum_cols, (const double **)mat->as, SIZE, SIZE); */
+        1:   88:    col_sums_new(sum_cols, (const double **)mat->as, SIZE, SIZE);
+>>>>>>> ddbe16ec646f0d02ff71df562777240148c039dd
         -:   89:
         -:   90:    // print
         -:   91:    /* vec_print(sum_rows, SIZE); */
@@ -98,5 +106,9 @@
         -:   93:    /* vec_print(sum_cols, SIZE); */
         -:   94:    /* printf("\n\n"); */
         -:   95:    /* matrix_print(mat); */
+<<<<<<< HEAD
     #####:   96:    return(0);
+=======
+        1:   96:    return(0);
+>>>>>>> ddbe16ec646f0d02ff71df562777240148c039dd
         -:   97:}

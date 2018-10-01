@@ -32,6 +32,7 @@
         -:   27:    int n;
         -:   28:};
         -:   29:
+<<<<<<< HEAD
     #####:   30:struct matrix * matrix_init(int m, int n)
         -:   31:{
     #####:   32:    struct matrix * mat = (struct matrix *)malloc(sizeof(struct matrix));
@@ -47,6 +48,23 @@
     #####:   42:    mat->n = n;
         -:   43:
     #####:   44:    return(mat);
+=======
+        1:   30:struct matrix * matrix_init(int m, int n)
+        -:   31:{
+        1:   32:    struct matrix * mat = (struct matrix *)malloc(sizeof(struct matrix));
+        1:   33:    MATRIX_TYPE * asentries = (MATRIX_TYPE *)malloc(sizeof(MATRIX_TYPE) * m * n);
+        1:   34:    MATRIX_TYPE ** as = (MATRIX_TYPE **)malloc(sizeof(MATRIX_TYPE *) * m);
+        -:   35:
+      101:   36:    for(int ix = 0, jx = 0 ; ix < m ; ix++, jx+=n)
+      100:   37:        as[ix] = asentries + jx;
+        -:   38:
+        1:   39:    mat->as = as;
+        1:   40:    mat->asentries = asentries;
+        1:   41:    mat->m = m;
+        1:   42:    mat->n = n;
+        -:   43:
+        1:   44:    return(mat);
+>>>>>>> ddbe16ec646f0d02ff71df562777240148c039dd
         -:   45:};
         -:   46:
     #####:   47:bool matrix_equal(struct matrix * mat1, struct matrix * mat2) {
