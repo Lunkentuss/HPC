@@ -8,102 +8,104 @@
         -:    3:
         -:    4:#include <stdbool.h>
         -:    5:
-        -:    6:#define MATRIX_TYPE_INT int
-        -:    7:#define MATRIX_TYPE_DOUBLE double
+        -:    6:#define MATRIX_TYPE_INT 0
+        -:    7:#define MATRIX_TYPE_DOUBLE 1
         -:    8:
-        -:    9:#ifndef MATRIX_TYPE 
+        -:    9:#ifndef MATRIX_TYPE_ENUM
         -:   10:    #define MATRIX_TYPE int
         -:   11:    #define MATRIX_TYPE_STR "d"
         -:   12:
-        -:   13:#elif MATRIX_TYPE == MATRIX_TYPE_INT
-        -:   14:    #define MATRIX_TYPE_STR "d"
-        -:   15:
-        -:   16:#elif MATRIX_TYPE == MATRIX_TYPE_INT
-        -:   17:    #define MATRIX_TYPE_STR "lf"
-        -:   18:
-        -:   19:#endif //MATRIX_TYPE
+        -:   13:#elif MATRIX_TYPE_ENUM == MATRIX_TYPE_INT
+        -:   14:    #define MATRIX_TYPE int
+        -:   15:    #define MATRIX_TYPE_STR "d"
+        -:   16:
+        -:   17:#elif MATRIX_TYPE_ENUM == MATRIX_TYPE_DOUBLE
+        -:   18:    #define MATRIX_TYPE double
+        -:   19:    #define MATRIX_TYPE_STR "lf"
         -:   20:
-        -:   21:struct matrix{
-        -:   22:    MATRIX_TYPE * asentries;
-        -:   23:    MATRIX_TYPE ** as;
-        -:   24:    int m;
-        -:   25:    int n;
-        -:   26:};
-        -:   27:
-        1:   28:struct matrix * matrix_init(int m, int n)
-        -:   29:{
-        1:   30:    struct matrix * mat = (struct matrix *)malloc(sizeof(struct matrix));
-        1:   31:    MATRIX_TYPE * asentries = (MATRIX_TYPE *)malloc(sizeof(MATRIX_TYPE) * m * n);
-        1:   32:    MATRIX_TYPE ** as = (MATRIX_TYPE **)malloc(sizeof(MATRIX_TYPE *) * m);
-        -:   33:
-      101:   34:    for(int ix = 0, jx = 0 ; ix < m ; ix++, jx+=n)
-      100:   35:        as[ix] = asentries + jx;
-        -:   36:
-        1:   37:    mat->as = as;
-        1:   38:    mat->asentries = asentries;
-        1:   39:    mat->m = m;
-        1:   40:    mat->n = n;
-        -:   41:
-        1:   42:    return(mat);
-        -:   43:};
-        -:   44:
-    #####:   45:bool matrix_equal(struct matrix * mat1, struct matrix * mat2) {
-    #####:   46:    if (mat1->m != mat2->m) {
-    #####:   47:        return(false);
-        -:   48:    }
-        -:   49:
-    #####:   50:    if (mat1->n != mat2->n) {
-    #####:   51:        return(false);
-        -:   52:    }
-        -:   53:
-    #####:   54:    for (int i = 0 ; i < mat1->m ; i++) {
-    #####:   55:        for (int j = 0 ; j < mat2->n ; j++) {
-    #####:   56:            if (mat1->as[i][j] != mat2->as[i][j]){
-    #####:   57:                return(false);
-        -:   58:            }
-        -:   59:        }
-        -:   60:    }
-        -:   61:
-    #####:   62:    return(true);
-        -:   63:}
-        -:   64:
-        1:   65:void matrix_print(struct matrix * mat) {
-      101:   66:    for (int i = 0 ; i < mat->m ; i++) {
-    10100:   67:        for (int j = 0 ; j < mat->n ; j++) {
-    10000:   68:            printf("%" MATRIX_TYPE_STR " ", mat->as[i][j]);
-        -:   69:        }
-      100:   70:        printf("\n");
-        -:   71:    }
-        1:   72:    return;
-        -:   73:}
-        -:   74:
-    #####:   75:void matrix_free(struct matrix * mat){
-    #####:   76:    free(mat->asentries);
-    #####:   77:    free(mat->as);
-        -:   78:
-    #####:   79:    return;
-        -:   80:}
-        -:   81:
-    #####:   82:void write_matrix(FILE * fp, struct matrix * mat)
-        -:   83:{
-    #####:   84:    fwrite(&mat->m, sizeof(int), 1, fp);
-    #####:   85:    fwrite(&mat->n, sizeof(int), 1, fp);
-        -:   86:
-    #####:   87:    fwrite(*mat->as, sizeof(int), mat->m * mat->n, fp);
-    #####:   88:    return;
-        -:   89:}
-        -:   90:
-    #####:   91:struct matrix * read_matrix(FILE * fp)
-        -:   92:{
-        -:   93:    int m, n;
-        -:   94:
-    #####:   95:    fread(&m, sizeof(int), 1, fp);
-    #####:   96:    fread(&n, sizeof(int), 1, fp);
-        -:   97:
-    #####:   98:    struct matrix * mat = matrix_init(m, n);
-    #####:   99:    fread(*mat->as, sizeof(int), m * n, fp);
-        -:  100:
-    #####:  101:    return(mat);
-        -:  102:}
-        -:  103:
-        -:  104:#endif /* MATRIX_H */
+        -:   21:#endif //MATRIX_TYPE
+        -:   22:
+        -:   23:struct matrix{
+        -:   24:    MATRIX_TYPE * asentries;
+        -:   25:    MATRIX_TYPE ** as;
+        -:   26:    int m;
+        -:   27:    int n;
+        -:   28:};
+        -:   29:
+        1:   30:struct matrix * matrix_init(int m, int n)
+        -:   31:{
+        1:   32:    struct matrix * mat = (struct matrix *)malloc(sizeof(struct matrix));
+        1:   33:    MATRIX_TYPE * asentries = (MATRIX_TYPE *)malloc(sizeof(MATRIX_TYPE) * m * n);
+        1:   34:    MATRIX_TYPE ** as = (MATRIX_TYPE **)malloc(sizeof(MATRIX_TYPE *) * m);
+        -:   35:
+      101:   36:    for(int ix = 0, jx = 0 ; ix < m ; ix++, jx+=n)
+      100:   37:        as[ix] = asentries + jx;
+        -:   38:
+        1:   39:    mat->as = as;
+        1:   40:    mat->asentries = asentries;
+        1:   41:    mat->m = m;
+        1:   42:    mat->n = n;
+        -:   43:
+        1:   44:    return(mat);
+        -:   45:};
+        -:   46:
+    #####:   47:bool matrix_equal(struct matrix * mat1, struct matrix * mat2) {
+    #####:   48:    if (mat1->m != mat2->m) {
+    #####:   49:        return(false);
+        -:   50:    }
+        -:   51:
+    #####:   52:    if (mat1->n != mat2->n) {
+    #####:   53:        return(false);
+        -:   54:    }
+        -:   55:
+    #####:   56:    for (int i = 0 ; i < mat1->m ; i++) {
+    #####:   57:        for (int j = 0 ; j < mat2->n ; j++) {
+    #####:   58:            if (mat1->as[i][j] != mat2->as[i][j]){
+    #####:   59:                return(false);
+        -:   60:            }
+        -:   61:        }
+        -:   62:    }
+        -:   63:
+    #####:   64:    return(true);
+        -:   65:}
+        -:   66:
+    #####:   67:void matrix_print(struct matrix * mat) {
+    #####:   68:    for (int i = 0 ; i < mat->m ; i++) {
+    #####:   69:        for (int j = 0 ; j < mat->n ; j++) {
+    #####:   70:            printf("%" MATRIX_TYPE_STR " ", mat->as[i][j]);
+        -:   71:        }
+    #####:   72:        printf("\n");
+        -:   73:    }
+    #####:   74:    return;
+        -:   75:}
+        -:   76:
+    #####:   77:void matrix_free(struct matrix * mat){
+    #####:   78:    free(mat->asentries);
+    #####:   79:    free(mat->as);
+        -:   80:
+    #####:   81:    return;
+        -:   82:}
+        -:   83:
+    #####:   84:void write_matrix(FILE * fp, struct matrix * mat)
+        -:   85:{
+    #####:   86:    fwrite(&mat->m, sizeof(int), 1, fp);
+    #####:   87:    fwrite(&mat->n, sizeof(int), 1, fp);
+        -:   88:
+    #####:   89:    fwrite(*mat->as, sizeof(int), mat->m * mat->n, fp);
+    #####:   90:    return;
+        -:   91:}
+        -:   92:
+    #####:   93:struct matrix * read_matrix(FILE * fp)
+        -:   94:{
+        -:   95:    int m, n;
+        -:   96:
+    #####:   97:    fread(&m, sizeof(int), 1, fp);
+    #####:   98:    fread(&n, sizeof(int), 1, fp);
+        -:   99:
+    #####:  100:    struct matrix * mat = matrix_init(m, n);
+    #####:  101:    fread(*mat->as, sizeof(int), m * n, fp);
+        -:  102:
+    #####:  103:    return(mat);
+        -:  104:}
+        -:  105:
+        -:  106:#endif /* MATRIX_H */
