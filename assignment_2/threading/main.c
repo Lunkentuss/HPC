@@ -1,17 +1,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
-#include <bool.h>
+#include <stdbool.h>
 #include <getopt.h>
 #include <complex.h>
 #include <math.h>
+
+#define MIN(x, y) x < y ? x : y
+#define POW2(x) x * x
 
 // The size from origo in the resulting pixel map
 #define LL 2
 
 // Constants for newton ending conditions
-#define END_MAG_LOW = 1e-3;
-#define END_MAG_HIGH = 1e10;
+#define END_MAG_LOW 1e-3
+#define END_MAG_HIGH 1e10
 
 // Global variables
 unsigned int line_count = 1000;
@@ -20,14 +23,15 @@ unsigned int line_count = 1000;
 int d = 2;
 
 // Row-major output of the attractor ppm
-int * result_attr = malloc(sizeof(int) * line_count * line_count);
+int * result_attr = (int *)malloc(sizeof(int) * line_count * line_count);
 
 // Row-major output of the convergence ppm
-int * result_conv = malloc(sizeof(int) * line_count * line_count);
+int * result_conv = (int *)malloc(sizeof(int) * line_count * line_count);
 
 // Gloval variables for the threads
 unsigned int thread_count;
 unsigned int num;
+pthread_mutex_t lock;
 const unsigned int num_per_thread;
 
 void
@@ -37,10 +41,9 @@ num_to_z(const unsigned int num, complex * result)
     const unsigned y_n = num / line_count;
     const double x = (double) x_n / line_count;
     const double y = (double) y_n / line_count;
-    complex z;
-    z =  -LL + 2 * LL * x / line_count \
-         + I * (-LL + 2 * LL * y / line_count);
-    return(z);
+    *result =  -LL + 2 * LL * x / line_count \
+               + I * (-LL + 2 * LL * y / line_count);
+    return;
 }
 
 struct newton_result {
@@ -49,25 +52,21 @@ struct newton_result {
 }
 
 void inline
-newton(const complex * z_start, struct * newton result)
+newton(complex * z_start, struct newton_result * result)
 {
-    z_k = *z_start;
+    complex * z_k = result->z_conv;
+    *z_k = *z_start;
 
-    unsigned int iter_count = 0;
+    unsigned int * iter_count = &result->iter_count;
 
+    *iter_count = 0;
     do { 
-        z_k = newton_iteration(z_k);
+        newton_iteration(z_k);
+        (*iter_count)++;
     } while(cabs(z_k) > END_MAG_LOW && z_k < END_MAG_HIGH);
     
     result->iter_count = iter_count;
-    result->z_conv = z_k;
     return;
-}
-
-complex inline
-newton_iteration(const complex z)
-{
-    return(z - func(z) / func_prime(z));
 }
 
 complex inline
@@ -87,6 +86,13 @@ main(int argc, char ** argv) {
     return(0);
 }
 
+void inline
+newton_iteration(complex * z)
+{
+    *z = *z - func(z) / func_prime(z));
+    return;
+}
+
 struct worker_data {
     unsigned int start, end;
 }
@@ -94,10 +100,25 @@ struct worker_data {
 /* Function that delegate worker data to the workers
    and is called during mutex. */
 void inline
-next_worker_data(struct worker_data * wd)
+new_worker_data(struct worker_data * wd)
 {
+    unsigned int num_max = POW2(line_count);
     wd->start = num;
-    wd->end = num + num_per_thread;
-    num = num + num_per_thread + 1;
+    wd->end = MIN(num + num_per_thread, num_max);
+    num = MIN(num + num_per_thread + 1, num_max);
     return;
+}
+
+void
+run() {
+    struct worker_data wd;
+
+    // Get the worker data.
+    pthread_mutex_lock(&lock);
+    new_worker_data(&wd);
+    pthread_mutex_unlock(&lock);
+
+    for (int i = wd.start ; i <= wd.end ; i++) {
+        printf("Test: %d", i);
+    }
 }
