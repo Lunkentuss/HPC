@@ -8,6 +8,7 @@
 
 #define MIN(x, y) x < y ? x : y
 #define POW2(x) x * x
+#define C_TYPE double
 
 // The size from origo in the resulting pixel map
 #define LL 2
@@ -17,7 +18,7 @@
 #define END_MAG_HIGH 1e10
 
 // Global variables
-unsigned int line_count = 1000;
+unsigned int line_count;
 
 // Function exponent
 int d = 2;
@@ -32,7 +33,7 @@ const int * result_conv;
 unsigned int thread_count;
 unsigned int num;
 pthread_mutex_t lock;
-const unsigned int num_per_thread;
+unsigned int num_per_thread;
 
 // Structs
 struct newton_result {
@@ -51,7 +52,8 @@ complex func_prime(const complex z);
 complex newton_iteration(const complex z);
 void newton(const complex z_start, struct newton_result * result);
 void new_worker_data(struct worker_data * wd);
-void run();
+void worker_calc(unsigned int start, unsigned int end);
+void * run();
 
 void
 num_to_z(const unsigned int num, complex * result)
@@ -114,22 +116,58 @@ new_worker_data(struct worker_data * wd)
     return;
 }
 
-void
+void *
 run() {
     struct worker_data wd;
 
-    // Get the worker data.
-    pthread_mutex_lock(&lock);
-    new_worker_data(&wd);
-    pthread_mutex_unlock(&lock);
+    bool continue_loop = true;
 
-    for (int i = wd.start ; i <= wd.end ; i++) {
-        printf("Test: %d", i);
+    while(continue_loop){
+        // Get the worker data during mutex lock
+        pthread_mutex_lock(&lock);
+        new_worker_data(&wd);
+        pthread_mutex_unlock(&lock);
+
+        // Do worker calculation until all calculations
+        // have been calculated.
+        if(wd.start == wd.end)
+            continue_loop = false;
+        else
+            worker_calc(wd.start, wd.end);
+    }
+}
+
+void
+worker_calc(const unsigned int start, const unsigned int end)
+{
+    for (int i = start ; i <= end ; i++) {
+        printf("Test: %d\n", i);
     }
 }
 
 int
 main(int argc, char ** argv) {
     result_attr = (int *)malloc(sizeof(int)*1000);
+    result_conv = (int *)malloc(sizeof(int)*1000);
+
+    line_count = 100;
+    num = 0;
+    thread_count = 5;
+    num_per_thread = 10;
+
+    pthread_t threads[thread_count];
+
+    // Create threads
+    for(int i = 0 ; i < thread_count ; i++){
+        if(pthread_create(&threads[i], NULL, run, (void*)NULL))
+            printf("Creation of thread %d failed\n", i);
+    }
+
+    // Join the threads
+    for(int i = 0 ; i < thread_count ; i++){
+        pthread_join(threads[i], NULL);
+    }
+    printf("Finished\n");
+
     return(0);
 }
