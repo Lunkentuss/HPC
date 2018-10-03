@@ -55,6 +55,9 @@ void new_worker_data(struct worker_data * wd);
 void worker_calc(unsigned int start, unsigned int end);
 void * run();
 
+/* The pixels in the resulting pixelmap is numbered in a row-major ordering
+   and this function translates the a number to the corresponding one to one
+   complex number */
 void
 num_to_z(const unsigned int num, complex * result)
 {
@@ -67,18 +70,22 @@ num_to_z(const unsigned int num, complex * result)
     return;
 }
 
+
+/* Calculates the value of z^d - 1  */
 complex
 func(const complex z)
 {
     return(cpow(z, d) - 1);
 }
 
+/* Calculates the value of the prime of z^d - 1  */
 complex
 func_prime(const complex z)
 {
     return(d * cpow(z, d-1));
 }
 
+/* Returns the result of a newton iteration  */
 complex
 newton_iteration(const complex z)
 {
@@ -105,7 +112,7 @@ newton(const complex z_start, struct newton_result * result)
 }
 
 /* Function that delegate worker data to the workers
-   and is called during mutex. */
+   and is called during mutex.  */
 void
 new_worker_data(struct worker_data * wd)
 {
@@ -116,6 +123,7 @@ new_worker_data(struct worker_data * wd)
     return;
 }
 
+/* Thread worker function  */
 void *
 run() {
     struct worker_data wd;
@@ -137,6 +145,7 @@ run() {
     }
 }
 
+/* This function does all the worker calculations  */
 void
 worker_calc(const unsigned int start, const unsigned int end)
 {
