@@ -149,11 +149,11 @@ newton(const double complex z_start, struct newton_result * result)
 
     double z_mag;
     do { 
+        /* printf("%lf\n", creal(z_k)); */
+        /* printf("%lf\n", cimag(z_k)); */
         z_k = newton_iteration(z_k);
         z_mag = cabs(z_k);
         iter_count++;
-        /* printf("%lf\n", creal(z_k)); */
-        /* printf("%lf\n", cimag(z_k)); */
         solution_index = near_solution_index(z_k);
     } while(z_mag > END_MAG_LOW && z_mag < END_MAG_HIGH \
             && solution_index == -1);
@@ -213,14 +213,14 @@ worker_calc(const unsigned int start, const unsigned int end)
         struct newton_result * resultPtr = &result;
 
         num_to_z(i, z_startPtr);
-        printf("Real: %lf\n", creal(z_start));
-        printf("Imag: %lf\n", cimag(z_start));
-        newton(start, resultPtr);
+        /* printf("Real: %lf\n", creal(z_start)); */
+        /* printf("Imag: %lf\n", cimag(z_start)); */
+        newton(z_start, resultPtr);
 
         RESULT_ATTR[i] = resultPtr->solution_index;
         RESULT_CONV[i] = resultPtr->iter_count;
 
-        printf("%d\n", resultPtr->solution_index);
+        /* printf("%d\n", resultPtr->solution_index); */
         /* printf("%d\n", resultPtr->iter_count); */
     }
 }
@@ -233,7 +233,7 @@ worker_write()
 
 int
 main(int argc, char ** argv) {
-    LINE_COUNT = 10;
+    LINE_COUNT = 5;
     THREAD_COUNT = 1;
     PIXELS_PER_JOB = 2;
     D = 3;
