@@ -5,6 +5,7 @@
 #include <getopt.h>
 #include <math.h>
 #include <complex.h>
+#include <time.h>
 
 #define MIN(x, y) x < y ? x : y
 #define POW2(x) x * x
@@ -225,18 +226,55 @@ worker_calc(const unsigned int start, const unsigned int end)
     }
 }
 
+void
+wait_for_job(const unsigned int job_index)
+{
+    while(true){
+        if(JOBS_FINISHED[job_index]){
+            return;
+        }
+        struct timespec sleep_time;
+        sleep_time.tv_nsec = 10000000;
+        sleep_time.tv_sec = 0;
+        nanosleep(&sleep_time, NULL);
+    }
+
+    return;
+}
+
+void
+write(unsigned int start, unsigned int end)
+{
+    for(int i = start ; i < end ; i++){
+        if (i % LINE_COUNT == 0)
+            printf("\n");
+        printf("%d", RESULT_ATTR[i]);
+    }
+    return;
+}
+
 void *
 worker_write()
 {
     printf("Write worker started\n");
+    for (int i = 0 ; i < JOB_COUNT ; i++){
+        wait_for_job(i);
+        unsigned int start = i * PIXELS_PER_JOB;
+        unsigned int end = \
+            MIN((i + 1) * PIXELS_PER_JOB, POW2(LINE_COUNT));
+
+        /* printf("Start : %d\n", start); */
+        /* printf("Emd: %d\n", end); */
+        write(start, end);
+    }
 }
 
 int
 main(int argc, char ** argv) {
-    LINE_COUNT = 5;
-    THREAD_COUNT = 1;
+    LINE_COUNT = 1000;
+    THREAD_COUNT = 4;
     PIXELS_PER_JOB = 2;
-    D = 3;
+    D = 7;
 
     JOB_INDEX = 0;
     JOB_COUNT = POW2(LINE_COUNT) / PIXELS_PER_JOB;
