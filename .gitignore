@@ -1,6 +1,7 @@
 *
 !*.*
 !*/
+!makefile
 
 *.dat
 *.out
