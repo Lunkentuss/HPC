@@ -18,6 +18,9 @@
 #define END_MAG_LOW 1e-3
 #define END_MAG_HIGH 1e10
 
+// The maximum of
+#define MAX_CONV_CHAR_SIZE 3
+
 // Global variables
 unsigned int LINE_COUNT;
 
@@ -52,6 +55,9 @@ pthread_mutex_t LOCK;
 // The amount of numbers per thread
 unsigned int PIXELS_PER_JOB;
 
+// The sleep waiting time for the write thread
+long SLEEP_TIME_NANO;
+
 // Structs
 struct newton_result {
     unsigned int iter_count;
@@ -78,6 +84,24 @@ void newton(const complex z_start, struct newton_result * result);
 void new_worker_data(struct worker_data * wd);
 void worker_calc(unsigned int start, unsigned int end);
 void * run();
+void write_ppm_header(FILE * file_attr, FILE * file_conv);
+
+void
+usage()
+{
+    printf("\
+Synopsis: newton [OPTIONS] dim \n\
+\n\
+Where dim is the d=dim of the polynom x^d - 1 \n\
+\n\
+OPTIONS: \n\
+\t-t : The number of threads\n\
+\t-l : The number of lines/the resolution \n\
+\t-s : The waiting time in nano seconds for the write thread \n\
+\t-j : The number of jobs per thread at one time \n\
+");
+exit(EXIT_FAILURE);
+}
 
 /* Returns the complex solutions to the equation x^d - 1  */
 complex *
@@ -115,7 +139,7 @@ num_to_z(const unsigned int p_index, complex * result)
     const double x = (double) x_n / (double) LINE_COUNT;
     const double y = (double) y_n / (double) LINE_COUNT;
     *result =  -LL + 2 * LL * x \
-               + I * (-LL + 2 * LL * y);
+               + I * (LL - 2 * LL * y);
     return;
 }
 
@@ -234,7 +258,7 @@ wait_for_job(const unsigned int job_index)
             return;
         }
         struct timespec sleep_time;
-        sleep_time.tv_nsec = 10000000;
+        sleep_time.tv_nsec = SLEEP_TIME_NANO;
         sleep_time.tv_sec = 0;
         nanosleep(&sleep_time, NULL);
     }
@@ -243,12 +267,27 @@ wait_for_job(const unsigned int job_index)
 }
 
 void
-write(unsigned int start, unsigned int end)
+do_write(
+    unsigned int start,
+    unsigned int end,
+    FILE * file_attr,
+    FILE * file_conv)
 {
     for(int i = start ; i < end ; i++){
-        if (i % LINE_COUNT == 0)
-            printf("\n");
-        printf("%d", RESULT_ATTR[i]);
+        if (i % LINE_COUNT == 0){
+            fprintf(file_attr, "\n");
+            fprintf(file_conv, "\n");
+        }
+        else{
+            fprintf(file_attr, " ");
+            fprintf(file_conv, " ");
+        }
+        fprintf(file_attr, "%d", RESULT_ATTR[i] + 1);
+        int char_length = (int)log10(RESULT_CONV[i]);
+        fprintf(
+            file_conv,
+            "%0*d",
+            MAX_CONV_CHAR_SIZE, RESULT_CONV[i]);
     }
     return;
 }
@@ -256,6 +295,13 @@ write(unsigned int start, unsigned int end)
 void *
 worker_write()
 {
+    char file_name_attr[30];
+    char file_name_conv[30];
+    sprintf(file_name_attr, "newton_attractors_x%d.ppm", D);
+    sprintf(file_name_conv, "newton_convergence_x%d.ppm", D);
+    FILE * file_attr = fopen(file_name_attr, "w");
+    FILE * file_conv = fopen(file_name_conv, "w");
+    write_ppm_header(file_attr, file_conv);
     printf("Write worker started\n");
     for (int i = 0 ; i < JOB_COUNT ; i++){
         wait_for_job(i);
@@ -265,16 +311,75 @@ worker_write()
 
         /* printf("Start : %d\n", start); */
         /* printf("Emd: %d\n", end); */
-        write(start, end);
+        do_write(start, end, file_attr, file_conv);
     }
+    fclose(file_attr);
+    fclose(file_conv);
+}
+
+void inline
+write_ppm_header(FILE * file_attr, FILE * file_conv)
+{
+    fprintf(file_attr, "P3\n");
+    fprintf(file_attr, "%d %d\n", LINE_COUNT, LINE_COUNT);
+    fprintf(file_attr, "%d", D + 1);
+    fprintf(file_conv, "P3\n");
+    fprintf(file_conv, "%d %d\n", LINE_COUNT, LINE_COUNT);
+    fprintf(file_conv, "%d", 100);
 }
 
 int
 main(int argc, char ** argv) {
-    LINE_COUNT = 1000;
-    THREAD_COUNT = 4;
+    // Default parameters
+    LINE_COUNT = 2000;
+    THREAD_COUNT = 1;
     PIXELS_PER_JOB = 2;
-    D = 7;
+    SLEEP_TIME_NANO = 1000000;
+    D = 3;
+
+    // One positional argument
+    argc--;
+    if (argc == 0)
+        usage();
+
+    int c;
+    while((c = getopt_long(argc, argv, "t:l:", NULL, NULL))
+           != -1){
+        switch(c)
+        {
+            case 't':
+                THREAD_COUNT = atoi(optarg);
+                break;
+
+            case 'l':
+                LINE_COUNT = atoi(optarg);
+                break;
+
+            case 'h':
+                usage();
+                break;
+
+            case 'j':
+                PIXELS_PER_JOB = atoi(optarg);
+                break;
+
+            case 's':
+                SLEEP_TIME_NANO = atoi(optarg);
+                break;
+
+            default:
+                usage();
+                break;
+        }
+    }
+    D = atoi(argv[argc]);
+
+    // Debugging
+    printf("Lines: %d\n", LINE_COUNT);
+    printf("Threads: %d\n", THREAD_COUNT);
+    printf("Dimension: %d\n", D);
+    printf("Pixel jobs per thread: %d\n", PIXELS_PER_JOB);
+    printf("Write sleep time: %d\n", SLEEP_TIME_NANO);
 
     JOB_INDEX = 0;
     JOB_COUNT = POW2(LINE_COUNT) / PIXELS_PER_JOB;
