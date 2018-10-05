@@ -343,7 +343,7 @@ main(int argc, char ** argv) {
         usage();
 
     int c;
-    while((c = getopt_long(argc, argv, "t:l:", NULL, NULL))
+    while((c = getopt_long(argc, argv, "t:l:j:s:", NULL, NULL))
            != -1){
         switch(c)
         {
@@ -409,7 +409,9 @@ main(int argc, char ** argv) {
     for(int i = 0 ; i < THREAD_COUNT ; i++){
         pthread_join(threads[i], NULL);
     }
+    printf("Newton threads finished\n");
     pthread_join(write_thread, NULL);
+    printf("Write thread finished\n");
 
     printf("Finished\n");
 
