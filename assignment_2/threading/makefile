@@ -1,5 +1,5 @@
 CC=gcc
-FLAGS=-O0
+FLAGS=-O3
 LIBS=-lm -lpthread
 DEBUGGING=0
 

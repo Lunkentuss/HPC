@@ -93,6 +93,7 @@ void num_to_z(const unsigned int num, complex * result);
 complex func(const complex z);
 complex func_prime(const complex z);
 complex newton_iteration(const complex z);
+complex cpow_opt(const complex z, const int power);
 void newton(const complex z_start, struct newton_result * result);
 void new_worker_data(struct worker_data * wd);
 void worker_calc(unsigned int start, unsigned int end);
@@ -184,10 +185,11 @@ solutions(const unsigned int dim)
 int
 near_solution_index(const double complex z)
 {
+    /* LOG("\t\t === Solutions ===", ' '); */
+    /* LOG("\t\tReal: %lf\n", creal(z)); */
+    /* LOG("\t\tImag: %lf\n", cimag(z)); */
     for (int i = 0 ; i < D ; i++){
         if (cabs(z - SOL[i]) < END_MAG_LOW){
-            /* printf("Real: %lf\n", creal(z)); */
-            /* printf("Imag: %lf\n", cimag(z)); */
             return(i);
         }
     }
@@ -227,17 +229,49 @@ func_prime(const double complex z)
 double complex
 newton_iteration(const double complex z)
 {
-    double complex z_next = z - func(z) / func_prime(z);
+    complex z_next;
+    z_next = z - z / D + 1 / (D * cpow_opt(z, D-1));
+    return(z_next);
+}
+
+double complex
+newton_iterationD1(const double complex z)
+{
+    complex z_next = 1;
     return(z_next);
 }
 
 void
-newton(const double complex z_start, struct newton_result * result)
+get_newton_iteration(double complex (*func)(const double complex))
+{
+    if(D == 1){
+        func = &newton_iterationD1;
+    }
+    else{
+        func = &newton_iteration;
+    }
+}
+
+double complex
+cpow_opt(const double complex z, const int power)
+{
+    double complex z_pow = z;
+    for(int i = 0 ; i < power - 1 ; i++){
+        z_pow = z_pow * z;
+    }
+    return(z_pow);
+}
+
+void
+newton(
+    const double complex z_start,
+    struct newton_result * result)
 {
     double complex z_k = z_start;
     unsigned int iter_count = 0;
     int solution_index;
 
+    LOG("=== New newton iteartion ===\n", ' ');
     double z_mag;
     do {
         LOG("\n\t=== Newton iteration ===\n", ' ');
