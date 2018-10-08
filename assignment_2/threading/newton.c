@@ -6,10 +6,22 @@
 #include <math.h>
 #include <complex.h>
 #include <time.h>
+#include <string.h>
 
 #define MIN(x, y) x < y ? x : y
 #define POW2(x) x * x
 #define C_TYPE double
+
+/* DEBUGGING LOGGING */
+#ifndef NE_DEBUG
+# define NE_DEBUG 0
+#endif
+
+#if NE_DEBUG == 1
+# define LOG(x, ...) printf(x, __VA_ARGS__)
+#else
+# define LOG(x, ...) // Empty
+#endif // End debugging logging
 
 // The size from origo in the resulting pixel map
 #define LL 2.0
@@ -26,6 +38,9 @@ unsigned int LINE_COUNT;
 
 // Function exponent
 int D;
+
+// Attractor ppm_pixel
+char ** attr_ppm_pixels;
 
 // Solutions to the function x^d - 1 = 0
 double complex * SOL;
@@ -68,12 +83,10 @@ struct worker_data {
     unsigned int start, end, job_index;
 };
 
-struct pixel {
-    unsigned int x;
-    unsigned int y;
-};
-
 // Define functions
+void usage();
+int digit_count(int number);
+char ** generate_attr_colors();
 complex * solutions(const unsigned dim);
 int near_solution_index(const double complex z);
 void num_to_z(const unsigned int num, complex * result);
@@ -86,6 +99,59 @@ void worker_calc(unsigned int start, unsigned int end);
 void * run();
 void write_ppm_header(FILE * file_attr, FILE * file_conv);
 
+/* Returns the number of digits for a integer (base 10)  */
+int digit_count(int number)
+{
+    int count = 0;
+    while(number != 0)
+    {
+        count++;
+        number /= 10;
+    }
+    return(count);
+}
+
+/* Heuristic function for generating different sub optimal color
+   values  */
+char **
+generate_attr_colors()
+{
+    int dim_digit_count = digit_count(D + 2);
+    int pixel_size = (dim_digit_count + 1) * 3;
+
+    char * values = (char *)malloc(sizeof(char) * pixel_size * (D + 1));
+    char ** array = (char **)malloc(sizeof(char *) * (D + 1));
+
+    // Infinite convergence has color black
+    *array = values;
+    for(int i = 0 ; i < 3 ; i++){
+        char zeros[dim_digit_count + 2];
+        sprintf(zeros, "%0*d ", dim_digit_count, 0);
+        memcpy(values + i * (dim_digit_count + 1), zeros, dim_digit_count + 1);
+    }
+
+    // Generate attractor colors
+    int pos = 0;
+    int base_value = 0;
+    for (int i = 1 ; i <= D ; i++) {
+        *(array + i) = values + i * pixel_size;
+        // Iterate over rgb values
+        for (int j = 0 ; j < 3 ; j++) {
+            int sat = base_value + (j + pos) % 3;
+            char sat_s[dim_digit_count + 2];
+            sprintf(sat_s, "%0*d ", dim_digit_count, sat);
+            memcpy(
+                values + i * pixel_size + j * (dim_digit_count + 1),
+                sat_s,
+                dim_digit_count + 1);
+        }
+        pos = (pos + 1) % 3;
+        base_value++;
+
+    }
+    return(array);
+}
+
 void
 usage()
 {
@@ -95,10 +161,10 @@ Synopsis: newton [OPTIONS] dim \n\
 Where dim is the d=dim of the polynom x^d - 1 \n\
 \n\
 OPTIONS: \n\
-\t-t : The number of threads\n\
-\t-l : The number of lines/the resolution \n\
-\t-s : The waiting time in nano seconds for the write thread \n\
-\t-j : The number of jobs per thread at one time \n\
+\t-t n : Set the number of threads\n\
+\t-l n : Set the number of lines \n\
+\t-s n : Set the waiting time in nano seconds for the write thread \n\
+\t-j n : Set the number of jobs per thread at one time \n\
 ");
 exit(EXIT_FAILURE);
 }
@@ -173,16 +239,16 @@ newton(const double complex z_start, struct newton_result * result)
     int solution_index;
 
     double z_mag;
-    do { 
-        /* printf("%lf\n", creal(z_k)); */
-        /* printf("%lf\n", cimag(z_k)); */
+    do {
+        LOG("\n\t=== Newton iteration ===\n", ' ');
+        LOG("\t%lf\n", creal(z_k));
+        LOG("\t%lf\n", cimag(z_k));
         z_k = newton_iteration(z_k);
         z_mag = cabs(z_k);
         iter_count++;
         solution_index = near_solution_index(z_k);
     } while(z_mag > END_MAG_LOW && z_mag < END_MAG_HIGH \
             && solution_index == -1);
-    /* printf("Ended ====\n"); */
 
     result->solution_index = solution_index;
     result->iter_count = iter_count;
@@ -238,8 +304,11 @@ worker_calc(const unsigned int start, const unsigned int end)
         struct newton_result * resultPtr = &result;
 
         num_to_z(i, z_startPtr);
-        /* printf("Real: %lf\n", creal(z_start)); */
-        /* printf("Imag: %lf\n", cimag(z_start)); */
+
+        LOG("=== Z-start ===\n", ' ');
+        LOG("Real: %lf\n", creal(z_start));
+        LOG("Imag: %lf\n", cimag(z_start));
+
         newton(z_start, resultPtr);
 
         RESULT_ATTR[i] = resultPtr->solution_index;
@@ -271,23 +340,30 @@ do_write(
     unsigned int start,
     unsigned int end,
     FILE * file_attr,
-    FILE * file_conv)
+    FILE * file_conv,
+    char ** attr_colors,
+    int attr_pixel_size)
 {
     for(int i = start ; i < end ; i++){
         if (i % LINE_COUNT == 0){
-            fprintf(file_attr, "\n");
-            fprintf(file_conv, "\n");
+            char nl = '\n';
+            fwrite(&nl, sizeof(char), 1, file_attr);
+            fwrite(&nl, sizeof(char), 1, file_conv);
         }
-        else{
-            fprintf(file_attr, " ");
-            fprintf(file_conv, " ");
-        }
-        fprintf(file_attr, "%d", RESULT_ATTR[i] + 1);
-        int char_length = (int)log10(RESULT_CONV[i]);
-        fprintf(
-            file_conv,
-            "%0*d",
-            MAX_CONV_CHAR_SIZE, RESULT_CONV[i]);
+        // Print to attractor file
+        fwrite(attr_colors[RESULT_ATTR[i] + 1], attr_pixel_size, 1, file_attr);
+
+        // Print to convergence file
+        char output_conv[MAX_CONV_CHAR_SIZE + 2];
+        sprintf(
+            output_conv,
+            "%0*d ",
+            MAX_CONV_CHAR_SIZE,
+            RESULT_CONV[i]);
+
+        // Iterate and print equal rgb values.
+        for (int i = 0 ; i < 3 ; i++)
+            fwrite(output_conv, MAX_CONV_CHAR_SIZE + 1, 1, file_conv);
     }
     return;
 }
@@ -301,7 +377,14 @@ worker_write()
     sprintf(file_name_conv, "newton_convergence_x%d.ppm", D);
     FILE * file_attr = fopen(file_name_attr, "w");
     FILE * file_conv = fopen(file_name_conv, "w");
+
+    // Write header to files
     write_ppm_header(file_attr, file_conv);
+
+    // Generate colors for the attractor ppm
+    char ** attr_colors = generate_attr_colors();
+    int attr_pixel_size = (digit_count(D+2) + 1) * 3;
+
     printf("Write worker started\n");
     for (int i = 0 ; i < JOB_COUNT ; i++){
         wait_for_job(i);
@@ -311,7 +394,13 @@ worker_write()
 
         /* printf("Start : %d\n", start); */
         /* printf("Emd: %d\n", end); */
-        do_write(start, end, file_attr, file_conv);
+        do_write(
+            start,
+            end,
+            file_attr, 
+            file_conv,
+            attr_colors,
+            attr_pixel_size);
     }
     fclose(file_attr);
     fclose(file_conv);
@@ -353,10 +442,6 @@ main(int argc, char ** argv) {
 
             case 'l':
                 LINE_COUNT = atoi(optarg);
-                break;
-
-            case 'h':
-                usage();
                 break;
 
             case 'j':
@@ -415,6 +500,7 @@ main(int argc, char ** argv) {
 
     printf("Finished\n");
 
+    // Clean up
     free(JOBS_FINISHED);
     free(SOL);
     free(RESULT_ATTR);
