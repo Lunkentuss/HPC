@@ -1,18 +1,26 @@
+/* This header file holds code for doing exponential by squaring
+   and some few case for specific exponential functions.*/
+
 #ifndef H_EXP_BY_SQUARE
 # define H_EXP_BY_SQUARE
 
-# ifndef SQUARE_TYPE
-#  define SQUARE_TYPE double complex
+# ifndef EXP_BY_SQUARE_TYPE
+#  define EXP_BY_SQUARE_TYPE double complex
+#  define EXP_BY_SQUARE_TYPE_UNITY 1
 # endif
 
 # ifndef POW2
 #  define POW2(x) x * x
 # endif
 
-inline SQUARE_TYPE
-pow_square_generic(SQUARE_TYPE x, int n)
+// Used to get a one argument function for the generic case,
+// see pow_square_generic_fixed.
+int FIXED_POWER;
+
+inline EXP_BY_SQUARE_TYPE
+pow_square_generic(EXP_BY_SQUARE_TYPE x, int n)
 {
-    SQUARE_TYPE r = 1;
+    EXP_BY_SQUARE_TYPE r = EXP_BY_SQUARE_TYPE_UNITY;
     while(n){
         if (n % 2 == 1){
             r *= x;
@@ -24,38 +32,38 @@ pow_square_generic(SQUARE_TYPE x, int n)
     return(r);
 }
 
-inline SQUARE_TYPE
-pow_square_generic_D(const SQUARE_TYPE x)
+inline EXP_BY_SQUARE_TYPE
+pow_square_generic_fixed(const EXP_BY_SQUARE_TYPE x)
 {
-    return(pow_square_generic(x, D));
+    return(pow_square_generic(x, FIXED_POWER));
 }
 
-inline SQUARE_TYPE
-pow_square_2(const SQUARE_TYPE x)
+inline EXP_BY_SQUARE_TYPE
+pow_square_1(const EXP_BY_SQUARE_TYPE x)
+{
+    return x; 
+}
+
+inline EXP_BY_SQUARE_TYPE
+pow_square_2(const EXP_BY_SQUARE_TYPE x)
 {
     return POW2(x); 
 }
 
-inline SQUARE_TYPE
-pow_square_3(const SQUARE_TYPE x)
+inline EXP_BY_SQUARE_TYPE
+pow_square_4(const EXP_BY_SQUARE_TYPE x)
 {
-    return(x * x * x);
+    EXP_BY_SQUARE_TYPE x_r = POW2(x);
+    x_r = POW2(x_r);
+    return(x_r);
 }
 
-inline SQUARE_TYPE
-pow_square_5(const SQUARE_TYPE x)
+inline EXP_BY_SQUARE_TYPE
+pow_square_6(const EXP_BY_SQUARE_TYPE x)
 {
-    SQUARE_TYPE x_square = POW2(x);
-    SQUARE_TYPE x_quad = POW2(x_square);
-    return(x_quad * x);
-}
-
-inline SQUARE_TYPE
-pow_square_7(const SQUARE_TYPE x)
-{
-    SQUARE_TYPE x_square = POW2(x);
-    SQUARE_TYPE x_quad = POW2(x_square);
-    return(x_quad * x_square * x);
+    EXP_BY_SQUARE_TYPE x_square = POW2(x);
+    EXP_BY_SQUARE_TYPE x_triple = x_square * x;
+    return(POW2(x_triple));
 }
 
 #endif
