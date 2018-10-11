@@ -148,7 +148,7 @@ generate_attr_colors()
         for (int j = 0 ; j < 3 ; j++) {
             int sat = base_value + (j + pos) % 3;
             char sat_s[dim_digit_count + 2];
-            sprintf(sat_s, "%0*d ", dim_digit_count, sat);
+            sprintf(sat_s, "%0*d ", (unsigned short)dim_digit_count, sat);
             memcpy(
                 values + i * pixel_size + j * (dim_digit_count + 1),
                 sat_s,
@@ -217,20 +217,6 @@ num_to_z(const unsigned int p_index, complex * result)
     *result =  -LL + 2 * LL * x \
                + I * (LL - 2 * LL * y);
     return;
-}
-
-/* Calculates the value of z^d - 1  */
-double complex
-func(const complex z)
-{
-    return(cpow(z, D) - 1);
-}
-
-/* Calculates the value of the prime of z^d - 1  */
-double complex
-func_prime(const double complex z)
-{
-    return(D * cpow(z, D-1));
 }
 
 /* Returns the result of a newton iteration  */
@@ -528,7 +514,7 @@ main(int argc, char ** argv) {
     printf("Threads: %d\n", THREAD_COUNT);
     printf("Dimension: %d\n", D);
     printf("Pixel jobs per thread: %d\n", PIXELS_PER_JOB);
-    printf("Write sleep time: %d\n", SLEEP_TIME_NANO);
+    printf("Write sleep time: %ld\n", SLEEP_TIME_NANO);
 
     JOB_INDEX = 0;
     JOB_COUNT = POW2(LINE_COUNT) / PIXELS_PER_JOB;
