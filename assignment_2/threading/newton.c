@@ -7,6 +7,7 @@
 #include <complex.h>
 #include <time.h>
 #include <string.h>
+#include "exp_by_square.h"
 
 #define MIN(x, y) x < y ? x : y
 #define POW2(x) x * x
@@ -39,10 +40,12 @@ unsigned int LINE_COUNT;
 
 // Function exponent
 int D;
-#include <exp_by_square.h>
 
 // Newton
 double complex (*NEWTON_FUNC)(double complex);
+
+// Exponential by squaring function for calculating D - 1
+double complex (*POW_FUNC)(double complex);
 
 // Attractor ppm_pixel
 char ** attr_ppm_pixels;
@@ -194,7 +197,7 @@ near_solution_index(const double complex z)
     /* LOG("\t\tReal: %lf\n", creal(z)); */
     /* LOG("\t\tImag: %lf\n", cimag(z)); */
     for (int i = 0 ; i < D ; i++){
-        if (cabs(z - SOL[i]) < END_MAG_LOW){
+        if (C_SQUARE_MAG(z - SOL[i]) < POW2(END_MAG_LOW)){
             return(i);
         }
     }
@@ -235,7 +238,7 @@ double complex
 newton_iteration(const double complex z)
 {
     complex z_next;
-    z_next = z - z / D + 1 / (D * cpow_opt(z, D-1));
+    z_next = z - z / D + 1 / (D * POW_FUNC(z));
     return(z_next);
 }
 
@@ -255,6 +258,25 @@ set_newton_func()
     else{
         NEWTON_FUNC = newton_iteration;
     }
+}
+
+/* Delegates the corresponding function for calculating D-1 */
+void
+set_pow_func()
+{
+    switch(D){
+        case 2:
+            POW_FUNC = pow_square_1;
+        case 3:
+            POW_FUNC = pow_square_2;
+        case 5:
+            POW_FUNC = pow_square_4;
+        case 7:
+            POW_FUNC = pow_square_6;
+        default:
+            POW_FUNC = pow_square_generic_fixed;
+            FIXED_POWER = D - 1;
+        }
 }
 
 double complex
@@ -522,6 +544,7 @@ main(int argc, char ** argv) {
 
     // Sets the newton callback function
     set_newton_func();
+    set_pow_func();
 
     // Create threads
     pthread_t threads[THREAD_COUNT];
