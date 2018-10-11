@@ -17,7 +17,7 @@
 // see pow_square_generic_fixed.
 int FIXED_POWER;
 
-inline EXP_BY_SQUARE_TYPE
+EXP_BY_SQUARE_TYPE
 pow_square_generic(EXP_BY_SQUARE_TYPE x, int n)
 {
     EXP_BY_SQUARE_TYPE r = EXP_BY_SQUARE_TYPE_UNITY;
@@ -32,25 +32,25 @@ pow_square_generic(EXP_BY_SQUARE_TYPE x, int n)
     return(r);
 }
 
-inline EXP_BY_SQUARE_TYPE
+EXP_BY_SQUARE_TYPE
 pow_square_generic_fixed(const EXP_BY_SQUARE_TYPE x)
 {
     return(pow_square_generic(x, FIXED_POWER));
 }
 
-inline EXP_BY_SQUARE_TYPE
+EXP_BY_SQUARE_TYPE
 pow_square_1(const EXP_BY_SQUARE_TYPE x)
 {
     return x; 
 }
 
-inline EXP_BY_SQUARE_TYPE
+EXP_BY_SQUARE_TYPE
 pow_square_2(const EXP_BY_SQUARE_TYPE x)
 {
     return POW2(x); 
 }
 
-inline EXP_BY_SQUARE_TYPE
+EXP_BY_SQUARE_TYPE
 pow_square_4(const EXP_BY_SQUARE_TYPE x)
 {
     EXP_BY_SQUARE_TYPE x_r = POW2(x);
@@ -58,7 +58,7 @@ pow_square_4(const EXP_BY_SQUARE_TYPE x)
     return(x_r);
 }
 
-inline EXP_BY_SQUARE_TYPE
+EXP_BY_SQUARE_TYPE
 pow_square_6(const EXP_BY_SQUARE_TYPE x)
 {
     EXP_BY_SQUARE_TYPE x_square = POW2(x);
