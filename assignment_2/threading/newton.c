@@ -10,6 +10,7 @@
 
 #define MIN(x, y) x < y ? x : y
 #define POW2(x) x * x
+#define C_SQUARE_MAG(c) creal(c) * creal(c) + cimag(c) * cimag(c)
 #define C_TYPE double
 
 /* DEBUGGING LOGGING */
@@ -38,6 +39,9 @@ unsigned int LINE_COUNT;
 
 // Function exponent
 int D;
+
+// Newton
+double complex (*NEWTON_FUNC)(double complex);
 
 // Attractor ppm_pixel
 char ** attr_ppm_pixels;
@@ -92,7 +96,7 @@ int near_solution_index(const double complex z);
 void num_to_z(const unsigned int num, complex * result);
 complex func(const complex z);
 complex func_prime(const complex z);
-complex newton_iteration(const complex z);
+double complex newton_iteration(const complex z);
 complex cpow_opt(const complex z, const int power);
 void newton(const complex z_start, struct newton_result * result);
 void new_worker_data(struct worker_data * wd);
@@ -242,13 +246,13 @@ newton_iterationD1(const double complex z)
 }
 
 void
-get_newton_iteration(double complex (*func)(const double complex))
+set_newton_func()
 {
     if(D == 1){
-        func = &newton_iterationD1;
+        NEWTON_FUNC = newton_iterationD1;
     }
     else{
-        func = &newton_iteration;
+        NEWTON_FUNC = newton_iteration;
     }
 }
 
@@ -262,27 +266,30 @@ cpow_opt(const double complex z, const int power)
     return(z_pow);
 }
 
-void
+inline void
 newton(
     const double complex z_start,
     struct newton_result * result)
 {
     double complex z_k = z_start;
     unsigned int iter_count = 0;
-    int solution_index;
 
-    LOG("=== New newton iteartion ===\n", ' ');
-    double z_mag;
-    do {
+    LOG("=== New newton iteration ===\n", ' ');
+    int solution_index = -1;
+    double z_mag_square = C_SQUARE_MAG(z_k);
+    while(
+            z_mag_square > POW2(END_MAG_LOW)     // Check lower bound
+            && z_mag_square < POW2(END_MAG_HIGH) // Check upper bound
+            && solution_index == -1)             // Check if near solution
+    {
         LOG("\n\t=== Newton iteration ===\n", ' ');
         LOG("\t%lf\n", creal(z_k));
         LOG("\t%lf\n", cimag(z_k));
-        z_k = newton_iteration(z_k);
-        z_mag = cabs(z_k);
+        z_k = NEWTON_FUNC(z_k);
+        z_mag_square = C_SQUARE_MAG(z_k);
         iter_count++;
         solution_index = near_solution_index(z_k);
-    } while(z_mag > END_MAG_LOW && z_mag < END_MAG_HIGH \
-            && solution_index == -1);
+    }
 
     result->solution_index = solution_index;
     result->iter_count = iter_count;
@@ -456,7 +463,7 @@ main(int argc, char ** argv) {
     // Default parameters
     LINE_COUNT = 2000;
     THREAD_COUNT = 1;
-    PIXELS_PER_JOB = 2;
+    PIXELS_PER_JOB = 20;
     SLEEP_TIME_NANO = 1000000;
     D = 3;
 
@@ -511,6 +518,9 @@ main(int argc, char ** argv) {
     SOL = solutions(D);
     RESULT_ATTR = (int *)malloc(sizeof(unsigned int)*POW2(LINE_COUNT));
     RESULT_CONV = (int *)malloc(sizeof(int)*POW2(LINE_COUNT));
+
+    // Sets the newton callback function
+    set_newton_func();
 
     // Create threads
     pthread_t threads[THREAD_COUNT];
