@@ -39,6 +39,7 @@ unsigned int LINE_COUNT;
 
 // Function exponent
 int D;
+#include <exp_by_square.h>
 
 // Newton
 double complex (*NEWTON_FUNC)(double complex);
