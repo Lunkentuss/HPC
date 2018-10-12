@@ -6,10 +6,11 @@ The solutions, attractors, convergences and most constants are declared as globa
 
 ### Main
 1. Parameters are set from arguments (using getopt)
-    1. -t (THREAD COUNT)
-    2. -l (LINE COUNT)
+    1. -t (THREAD COUNT, DEFAULT: 1)
+    2. -l (LINE COUNT, DEFAULT: 2000)
     3. -j (PIXELS PER JOB, DEFAULT: LINE COUNT)
-    4. -s (SLEEP TIME, DEFAULT: 100 µs) 
+    4. -s (SLEEP TIME IN NANOSECONDS, DEFAULT: 1000000)
+    5. (last) (DEGREE, DEFAULT: 3) 
 2. Since the work is going to be divided into chunks of \[PIXELS PER JOB\] size, additional parameters related to this are set
 3. The roots to the equation are found
 4. Memory is allocated
