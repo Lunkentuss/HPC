@@ -12,5 +12,4 @@ newton : newton.c
 	$(CC) newton.c -o newton $(FLAGS) $(LIBS) -D NE_DEBUG=$(DEBUGGING) $(INCLUDES)
 
 clean : 
-	rm newton
-	rm *.ppm
+	rm newton *.pmm
