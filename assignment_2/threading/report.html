@@ -8,10 +8,11 @@
 <ol>
   <li>Parameters are set from arguments (using getopt)
     <ol>
-      <li>-t (THREAD COUNT)</li>
-      <li>-l (LINE COUNT)</li>
+      <li>-t (THREAD COUNT, DEFAULT: 1)</li>
+      <li>-l (LINE COUNT, DEFAULT: 2000)</li>
       <li>-j (PIXELS PER JOB, DEFAULT: LINE COUNT)</li>
-      <li>-s (SLEEP TIME, DEFAULT: 100 µs)</li>
+      <li>-s (SLEEP TIME IN NANOSECONDS, DEFAULT: 1000000)</li>
+      <li>(last) (DEGREE, DEFAULT: 3)</li>
     </ol>
   </li>
   <li>Since the work is going to be divided into chunks of [PIXELS PER JOB] size, additional parameters related to this are set</li>
