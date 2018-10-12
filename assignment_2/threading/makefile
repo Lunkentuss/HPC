@@ -1,5 +1,5 @@
 CC=gcc
-FLAGS=-O0
+FLAGS=-O2
 LIBS=-lm -lpthread
 INCLUDES=-I./util
 DEBUGGING=0
@@ -12,4 +12,4 @@ newton : newton.c
 	$(CC) newton.c -o newton $(FLAGS) $(LIBS) -D NE_DEBUG=$(DEBUGGING) $(INCLUDES)
 
 clean : 
-	rm newton *.ppm
+	rm newton *.ppm *.html

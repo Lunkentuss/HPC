@@ -148,7 +148,7 @@ main(int argc, char **argv) {
     LINE_COUNT = 2000;
     THREAD_COUNT = 1;
     PIXELS_PER_JOB = LINE_COUNT;
-    SLEEP_TIME_NANO = 1000000;
+    SLEEP_TIME_NANO = 100000;
     D = 3;
 
     // One positional argument
