@@ -1,5 +1,4 @@
 #include <complex.h>
-#include "exp_by_square.h"
 #include <getopt.h>
 #include <math.h>
 #include <pthread.h>
@@ -8,6 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include "exp_by_square.h"
 
 /* 
  * Macros 
