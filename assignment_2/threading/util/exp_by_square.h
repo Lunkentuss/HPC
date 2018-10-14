@@ -10,7 +10,7 @@
 # endif
 
 # ifndef POW2
-#  define POW2(x) x * x
+#  define POW2(x) (x) * (x)
 # endif
 
 // Used to get a one argument function for the generic case,
@@ -18,9 +18,10 @@
 int FIXED_POWER;
 
 EXP_BY_SQUARE_TYPE
-pow_square_generic(EXP_BY_SQUARE_TYPE x, int n)
+pow_square_generic(const EXP_BY_SQUARE_TYPE nbr, int n)
 {
     EXP_BY_SQUARE_TYPE r = EXP_BY_SQUARE_TYPE_UNITY;
+    EXP_BY_SQUARE_TYPE x = nbr;
     while(n){
         if (n % 2 == 1){
             r *= x;

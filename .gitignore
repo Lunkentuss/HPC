@@ -6,3 +6,5 @@
 *.dat
 *.out
 *.ppm
+*.html
+test.c

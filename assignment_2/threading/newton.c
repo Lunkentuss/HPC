@@ -10,7 +10,7 @@
 #include "exp_by_square.h"
 
 #define MIN(x, y) x < y ? x : y
-#define POW2(x) x * x
+#define POW2(x) (x) * (x)
 #define C_SQUARE_MAG(c) creal(c) * creal(c) + cimag(c) * cimag(c)
 #define C_TYPE double
 
@@ -253,15 +253,20 @@ set_pow_func()
     switch(D){
         case 2:
             POW_FUNC = pow_square_1;
+            break;
         case 3:
             POW_FUNC = pow_square_2;
+            break;
         case 5:
             POW_FUNC = pow_square_4;
+            break;
         case 7:
             POW_FUNC = pow_square_6;
+            break;
         default:
             POW_FUNC = pow_square_generic_fixed;
             FIXED_POWER = D - 1;
+            break;
         }
 }
 
