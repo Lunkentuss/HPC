@@ -6,10 +6,11 @@ The solutions, attractors, convergences and most constants are declared as globa
 
 ### Main
 1. Parameters are set from arguments (using getopt)
-    1. -t (THREAD COUNT)
-    2. -l (LINE COUNT)
+    1. -t (THREAD COUNT, DEFAULT: 1)
+    2. -l (LINE COUNT, DEFAULT: 2000)
     3. -j (PIXELS PER JOB, DEFAULT: LINE COUNT)
-    4. -s (SLEEP TIME, DEFAULT: 100 µs) 
+    4. -s (SLEEP TIME IN NANOSECONDS, DEFAULT: 100000)
+    5. (last) (DEGREE, DEFAULT: 3) 
 2. Since the work is going to be divided into chunks of \[PIXELS PER JOB\] size, additional parameters related to this are set
 3. The roots to the equation are found
 4. Memory is allocated
@@ -32,4 +33,10 @@ The solutions, attractors, convergences and most constants are declared as globa
 5. This is repeated until there are no more jobs.
 
 ## Performance aspects
+1. Since the simplified expression for the next iteration in the algorithm contains a exponentiation, we provide different implementations of that exponentiation based on the degree. Every implementation is based on exponentiation by squaring passed by callback. In addition, when the degree is passed, the function is set to return the value directly. 
+2. Every distance-related check is done by comparing the squares to avoid the additional square root. The squared magnitude is calculated once for the three different checks.
+3. We make extensive use of inlining wherever possible.
+4. Most of the writing is done using fwrite (rather than fprintf)
+5. One thing we did note, but did not implement is that 
 
+ 
