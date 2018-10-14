@@ -110,7 +110,7 @@ struct worker_data {
  */
 
 // Miscellaneous
-void print_instructions();
+void usage();
 int digit_count(int number);
 
 // Numerical (Helper)
@@ -154,7 +154,7 @@ main(int argc, char **argv) {
     // One positional argument
     argc--;
     if (argc == 0)
-        print_instructions();
+        usage();
 
     // Parse arguments
     int c;
@@ -179,7 +179,7 @@ main(int argc, char **argv) {
                 break;
 
             default:
-                print_instructions();
+                usage();
                 break;
         }
     }
@@ -300,7 +300,7 @@ generate_colors()
 
 /* Prints flag instructions */
 void
-print_instructions()
+usage()
 {
     printf("\
     Synopsis: newton [OPTIONS] dim \n\
