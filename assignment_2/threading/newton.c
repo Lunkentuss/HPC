@@ -1,5 +1,4 @@
 #include <complex.h>
-#include "exp_by_square.h"
 #include <getopt.h>
 #include <math.h>
 #include <pthread.h>
@@ -8,6 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include "exp_by_square.h"
 
 /* 
  * Macros 
@@ -233,9 +233,9 @@ get_solutions(const unsigned int dim)
 int
 near_solution_index(const double complex z)
 {
-    /* LOG("\t\t === Solutions ===", ' '); */
-    /* LOG("\t\tReal: %lf\n", creal(z)); */
-    /* LOG("\t\tImag: %lf\n", cimag(z)); */
+    LOG("\t\t === Solutions ===", ' ');
+    LOG("\t\tReal: %lf\n", creal(z));
+    LOG("\t\tImag: %lf\n", cimag(z));
     for (int i = 0 ; i < D ; i++)
         if (C_SQUARE_MAG(z - SOL[i]) < POW2(END_MAG_LOW))
             return i;
@@ -474,8 +474,6 @@ run_write()
         unsigned int end = \
             MIN((i + 1) * PIXELS_PER_JOB, POW2(LINE_COUNT));
 
-        /* printf("Start : %d\n", start); */
-        /* printf("Emd: %d\n", end); */
         write_pixels(
             start,
             end,
