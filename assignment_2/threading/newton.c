@@ -38,6 +38,7 @@
 
 // The maximum number of digits allowed as a color value for convergences
 #define MAX_CONV_CHAR_SIZE 3
+#define MAX_CONV_NBR 999
 
 /* 
  * Global variables
@@ -116,24 +117,24 @@ int digit_count(int number);
 // Numerical (Helper)
 void set_newton_func();
 void set_pow_func();
-double complex newton_iteration(const complex z);
-double complex newton_iterationD1(const complex z); 
+double complex newton_iteration(const double complex z);
+double complex newton_iterationD1(const double complex z); 
 
 // Numerical
-complex *get_solutions(const unsigned dim);
+double complex *get_solutions(const unsigned dim);
 int near_solution_index(const double complex z);
-void index_to_z(const unsigned int num, complex * result);
-void newton(const complex z_start, struct newton_result * result);
+void index_to_z(const unsigned int num, double complex * result);
+void newton(const double complex z_start, struct newton_result * result);
 
 // Compute threads
-void *run_compute();
+void * run_compute();
 void acquire_job(struct worker_data *wd);
 void perform_job(unsigned int start, unsigned int end);
 
 // Write thread
-void *run_write();
+void * run_write();
 void write_header(FILE *file_attr, FILE *file_conv);
-char **generate_colors();
+char ** generate_colors();
 void write_pixels(unsigned int start, unsigned int end, FILE *file_attr,
     FILE *file_conv, char **attr_colors, int attr_pixel_size);
 
@@ -216,10 +217,10 @@ generate_colors()
 }
 
 /* Returns the complex solutions to the given equation */
-complex*
+double complex*
 get_solutions(const unsigned int dim)
 {
-    complex *solu = (complex *)malloc(sizeof(complex) * dim);
+    double complex * solu = (double complex *)malloc(sizeof(double complex) * dim);
     for (int i = 0; i < dim; i++) {
         solu[i] = cos(2 * M_PI * (double)i / (double)dim) \
                    + I * sin(2 * M_PI * (double)i / (double)dim);
@@ -244,7 +245,7 @@ near_solution_index(const double complex z)
 
 /* Transforms vector index to corresponding complex number in a discrete grid */
 void
-index_to_z(const unsigned int p_index, complex *result)
+index_to_z(const unsigned int p_index, double complex *result)
 {
     const unsigned i = p_index % LINE_COUNT;
     const unsigned j = p_index / LINE_COUNT;
@@ -260,7 +261,7 @@ index_to_z(const unsigned int p_index, complex *result)
 double complex
 newton_iteration(const double complex z)
 {
-    complex z_next;
+    double complex z_next;
     z_next = z - z / D + 1 / (D * POW_FUNC(z));
     return(z_next);
 }
@@ -268,7 +269,7 @@ newton_iteration(const double complex z)
 double complex
 newton_iterationD1(const double complex z)
 {
-    complex z_next = 1;
+    double complex z_next = 1;
     return(z_next);
 }
 
@@ -434,6 +435,9 @@ write_pixels(unsigned int start, unsigned int end, FILE *file_attr,
         fwrite(attr_colors[RESULT_ATTR[i] + 1], attr_pixel_size, 1, file_attr);
 
         // Print to convergence file
+        if (RESULT_CONV[i] > MAX_CONV_NBR)
+            RESULT_CONV[i] = MAX_CONV_NBR;
+
         char output_conv[MAX_CONV_CHAR_SIZE + 2];
         sprintf(output_conv, "%0*d ", MAX_CONV_CHAR_SIZE, RESULT_CONV[i]);
 
@@ -483,6 +487,8 @@ run_write()
 
     fclose(file_attr);
     fclose(file_conv);
+
+    free(attr_colors);
 }
 
 void inline
@@ -562,8 +568,7 @@ main(int argc, char **argv) {
 
     JOBS_FINISHED = (bool *)calloc(JOB_COUNT, sizeof(bool));
     RESULT_ATTR = (int *)malloc(sizeof(int)*POW2(LINE_COUNT));
-    RESULT_CONV = (int *)malloc(sizeof(unsigned int)*POW2(LINE_COUNT));
-    SOL = (complex *)malloc(sizeof(complex) * D);
+    RESULT_CONV = (unsigned int *)malloc(sizeof(unsigned int)*POW2(LINE_COUNT));
     SOL = get_solutions(D);
 
     // Sets the newton callback function

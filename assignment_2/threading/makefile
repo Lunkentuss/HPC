@@ -13,3 +13,4 @@ newton : newton.c
 
 clean : 
 	rm newton *.ppm *.html
+	rm *.ppm
