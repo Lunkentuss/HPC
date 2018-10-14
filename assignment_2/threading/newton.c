@@ -141,106 +141,23 @@ void write_pixels(unsigned int start, unsigned int end, FILE *file_attr,
  * Functions 
  */
 
-int
-main(int argc, char **argv) {
+/* Prints flag instructions */
+void
+usage()
+{
+    printf("\
+    Synopsis: newton [OPTIONS] dim \n\
+    \n\
+    Where dim is the d=dim of the polynom x^d - 1 \n\
+    \n\
+    OPTIONS: \n\
+    \t-t n : Set the number of threads\n\
+    \t-l n : Set the number of lines \n\
+    \t-s n : Set the waiting time in nano seconds for the write thread \n\
+    \t-j n : Set the number of jobs per thread at one time \n\
+    ");
     
-    // Default parameters
-    LINE_COUNT = 2000;
-    THREAD_COUNT = 1;
-    PIXELS_PER_JOB = LINE_COUNT;
-    SLEEP_TIME_NANO = 100000;
-    D = 3;
-
-    // One positional argument
-    argc--;
-    if (argc == 0)
-        usage();
-
-    // Parse arguments
-    int c;
-    while((c = getopt_long(argc, argv, "t:l:j:s:", NULL, NULL))
-           != -1){
-        switch(c)
-        {
-            case 't':
-                THREAD_COUNT = atoi(optarg);
-                break;
-
-            case 'l':
-                LINE_COUNT = atoi(optarg);
-                break;
-
-            case 'j':
-                PIXELS_PER_JOB = atoi(optarg);
-                break;
-
-            case 's':
-                SLEEP_TIME_NANO = atoi(optarg);
-                break;
-
-            default:
-                usage();
-                break;
-        }
-    }
-
-    D = atoi(argv[argc]);
-
-    // Debugging
-    printf("Lines: %d\n", LINE_COUNT);
-    printf("Threads: %d\n", THREAD_COUNT);
-    printf("Dimension: %d\n", D);
-    printf("Pixel jobs per thread: %d\n", PIXELS_PER_JOB);
-    printf("Write sleep time: %ld\n", SLEEP_TIME_NANO);
-
-    // Set job parameters
-    JOB_INDEX = 0;
-    JOB_COUNT = POW2(LINE_COUNT) / PIXELS_PER_JOB;
-    
-    // Compensate for eventual truncation
-    if (POW2(LINE_COUNT) % PIXELS_PER_JOB != 0)
-        JOB_COUNT++;
-
-    JOBS_FINISHED = (bool *)calloc(JOB_COUNT, sizeof(bool));
-    RESULT_ATTR = (int *)malloc(sizeof(int)*POW2(LINE_COUNT));
-    RESULT_CONV = (int *)malloc(sizeof(unsigned int)*POW2(LINE_COUNT));
-    SOL = (complex *)malloc(sizeof(complex) * D);
-    SOL = get_solutions(D);
-
-    // Sets the newton callback function
-    set_newton_func();
-    set_pow_func();
-
-    // Create compute threads
-    pthread_t threads[THREAD_COUNT];
-    for(int i = 0; i < THREAD_COUNT; i++) {
-        if (pthread_create(&threads[i], NULL, run_compute, (void*)NULL)) {
-            printf("Creation of thread %d failed\n", i);
-        }
-    }
-
-    // Create write thead
-    pthread_t write_thread;
-    pthread_create(&write_thread, NULL, run_write, (void *)NULL);
-
-    // Join compute threads
-    for(int i = 0 ; i < THREAD_COUNT ; i++)
-        pthread_join(threads[i], NULL);
-    printf("Compute threads finished\n");
-
-    // Join write thread
-    pthread_join(write_thread, NULL);
-    printf("Write thread finished\n");
-
-    printf("Finished\n");
-
-    // Clean up
-    free(JOBS_FINISHED);
-    free(SOL);
-    free(RESULT_ATTR);
-    free(RESULT_CONV);
-
-    return(0);
+    exit(EXIT_FAILURE);
 }
 
 /* Returns the number of digits for a decimal numeral */
@@ -296,25 +213,6 @@ generate_colors()
     }
 
     return(array);
-}
-
-/* Prints flag instructions */
-void
-usage()
-{
-    printf("\
-    Synopsis: newton [OPTIONS] dim \n\
-    \n\
-    Where dim is the d=dim of the polynom x^d - 1 \n\
-    \n\
-    OPTIONS: \n\
-    \t-t n : Set the number of threads\n\
-    \t-l n : Set the number of lines \n\
-    \t-s n : Set the waiting time in nano seconds for the write thread \n\
-    \t-j n : Set the number of jobs per thread at one time \n\
-    ");
-    
-    exit(EXIT_FAILURE);
 }
 
 /* Returns the complex solutions to the given equation */
@@ -597,3 +495,110 @@ write_header(FILE *file_attr, FILE *file_conv)
     fprintf(file_conv, "%d %d\n", LINE_COUNT, LINE_COUNT);
     fprintf(file_conv, "%d", 100);
 }
+
+int
+main(int argc, char **argv) {
+    
+    // Default parameters
+    LINE_COUNT = 2000;
+    THREAD_COUNT = 1;
+    PIXELS_PER_JOB = 0;
+    SLEEP_TIME_NANO = 100000;
+    D = 3;
+
+    // One positional argument
+    argc--;
+    if (argc == 0)
+        usage();
+
+    // Parse arguments
+    int c;
+    while((c = getopt_long(argc, argv, "t:l:j:s:", NULL, NULL))
+           != -1){
+        switch(c)
+        {
+            case 't':
+                THREAD_COUNT = atoi(optarg);
+                break;
+
+            case 'l':
+                LINE_COUNT = atoi(optarg);
+                break;
+
+            case 'j':
+                PIXELS_PER_JOB = atoi(optarg);
+                break;
+
+            case 's':
+                SLEEP_TIME_NANO = atoi(optarg);
+                break;
+
+            default:
+                usage();
+                break;
+        }
+    }
+
+    D = atoi(argv[argc]);
+
+    // Set default value for PIXELS_PER_JOB if -j flags is not set
+    if (PIXELS_PER_JOB == 0)
+        PIXELS_PER_JOB = LINE_COUNT;
+
+    // Debugging
+    printf("Lines: %d\n", LINE_COUNT);
+    printf("Threads: %d\n", THREAD_COUNT);
+    printf("Dimension: %d\n", D);
+    printf("Pixel jobs per thread: %d\n", PIXELS_PER_JOB);
+    printf("Write sleep time: %ld\n", SLEEP_TIME_NANO);
+
+    // Set job parameters
+    JOB_INDEX = 0;
+    JOB_COUNT = POW2(LINE_COUNT) / PIXELS_PER_JOB;
+    
+    // Compensate for eventual truncation
+    if (POW2(LINE_COUNT) % PIXELS_PER_JOB != 0)
+        JOB_COUNT++;
+
+    JOBS_FINISHED = (bool *)calloc(JOB_COUNT, sizeof(bool));
+    RESULT_ATTR = (int *)malloc(sizeof(int)*POW2(LINE_COUNT));
+    RESULT_CONV = (int *)malloc(sizeof(unsigned int)*POW2(LINE_COUNT));
+    SOL = (complex *)malloc(sizeof(complex) * D);
+    SOL = get_solutions(D);
+
+    // Sets the newton callback function
+    set_newton_func();
+    set_pow_func();
+
+    // Create compute threads
+    pthread_t threads[THREAD_COUNT];
+    for(int i = 0; i < THREAD_COUNT; i++) {
+        if (pthread_create(&threads[i], NULL, run_compute, (void*)NULL)) {
+            printf("Creation of thread %d failed\n", i);
+        }
+    }
+
+    // Create write thead
+    pthread_t write_thread;
+    pthread_create(&write_thread, NULL, run_write, (void *)NULL);
+
+    // Join compute threads
+    for(int i = 0 ; i < THREAD_COUNT ; i++)
+        pthread_join(threads[i], NULL);
+    printf("Compute threads finished\n");
+
+    // Join write thread
+    pthread_join(write_thread, NULL);
+    printf("Write thread finished\n");
+
+    printf("Finished\n");
+
+    // Clean up
+    free(JOBS_FINISHED);
+    free(SOL);
+    free(RESULT_ATTR);
+    free(RESULT_CONV);
+
+    return(0);
+}
+
