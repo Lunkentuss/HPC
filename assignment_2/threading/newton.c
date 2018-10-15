@@ -339,7 +339,7 @@ newton(const double complex z_start, struct newton_result *result)
 
 /* Function that delegate worker data to the workers
    and is called during mutex */
-void
+void inline
 acquire_job(struct worker_data * wd)
 {
     wd->start = JOB_INDEX * PIXELS_PER_JOB;
@@ -376,7 +376,7 @@ run_compute() {
 }
 
 /* Perform calculations for each pixel part of a specified job */
-void
+void inline
 perform_job(const unsigned int start, const unsigned int end)
 {
     for (int i = start; i < end; i++) {
@@ -403,7 +403,7 @@ perform_job(const unsigned int start, const unsigned int end)
 }
 
 /* Used by writing thread to wait for jobs to be completed */
-void
+void inline
 wait_for_job(const unsigned int job_index)
 {
     while(true) {
@@ -420,7 +420,7 @@ wait_for_job(const unsigned int job_index)
 }
 
 /* Writes the result of a single job (in terms of pixels) to files */
-void
+void inline
 write_pixels(unsigned int start, unsigned int end, FILE *file_attr,
     FILE *file_conv, char **attr_colors, int attr_pixel_size)
 {
@@ -435,8 +435,7 @@ write_pixels(unsigned int start, unsigned int end, FILE *file_attr,
         fwrite(attr_colors[RESULT_ATTR[i] + 1], attr_pixel_size, 1, file_attr);
 
         // Print to convergence file
-        if (RESULT_CONV[i] > MAX_CONV_NBR)
-            RESULT_CONV[i] = MAX_CONV_NBR;
+        /* RESULT_CONV[i] = MIN(MAX_CONV_NBR, RESULT_CONV[i]); */
 
         char output_conv[MAX_CONV_CHAR_SIZE + 2];
         sprintf(output_conv, "%0*d ", MAX_CONV_CHAR_SIZE, RESULT_CONV[i]);
@@ -467,7 +466,7 @@ run_write()
     int attr_pixel_size = (digit_count(D + 2) + 1) * 3;
 
     // Start writing
-    printf("Write worker started\n");
+    /* printf("Write worker started\n"); */
     for (int i = 0 ; i < JOB_COUNT ; i++) {
         wait_for_job(i);
         unsigned int start = i * PIXELS_PER_JOB;
