@@ -37,6 +37,7 @@ The solutions, attractors, convergences and most constants are declared as globa
 2. Every distance-related check is done by comparing the squares to avoid the additional square root. The squared magnitude is calculated once for the three different checks.
 3. We make extensive use of inlining wherever possible.
 4. Most of the writing is done using fwrite (rather than fprintf)
-5. One thing we did note, but did not implement is that 
+5. Since a lot of values in the results are repeated, we precompute the strings used to generate colors for all allowed values (which we then access to write). This is worth it since the number of allowed values is smaller than the number of results.
+ 
 
  
