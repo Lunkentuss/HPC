@@ -4,7 +4,7 @@ LIBS=-lm -lpthread
 INCLUDES=-I./util
 DEBUGGING=0
 
-.PHONY : clean, prof
+.PHONY : clean, prof, debug
 
 all : newton 
 
@@ -13,6 +13,9 @@ newton : newton.c
 
 prof : newton.c
 	$(CC) newton.c -o newton $(FLAGS) $(LIBS) -D NE_DEBUG=$(DEBUGGING) $(INCLUDES) -pg
+
+debug : newton.c
+	$(CC) newton.c -o newton $(FLAGS) $(LIBS) -D NE_DEBUG=$(DEBUGGING) $(INCLUDES) -g
 
 clean : 
 	rm newton *.ppm *.html

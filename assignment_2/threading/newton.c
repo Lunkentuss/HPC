@@ -218,10 +218,10 @@ generate_attr_colors()
 char**
 generate_conv_colors() {
     
-    char *values = (char *)malloc(sizeof(char) * (MAX_CONV_NBR + 1) * (MAX_CONV_CHAR_SIZE + 2));
+    char *values = (char *)malloc(sizeof(char) * (MAX_CONV_NBR + 1) * (MAX_CONV_CHAR_SIZE + 1) * 3 + 1);
     char **array = (char **)malloc(sizeof(char*) * (MAX_CONV_NBR + 1));
     *array = values;
-    for (int i = 0, j = 0; i < MAX_CONV_NBR + 1; ++i, j += MAX_CONV_CHAR_SIZE + 2) {
+    for (int i = 0, j = 0; i < MAX_CONV_NBR + 1; ++i, j += 3 * (MAX_CONV_CHAR_SIZE + 1)) {
         array[i] = values + j;
     } 
 
@@ -397,7 +397,7 @@ run_compute() {
 void inline
 perform_job(const unsigned int start, const unsigned int end)
 {
-    for (int i = start; i < end; i++) {
+    for (unsigned int i = start; i < end; i++) {
         double complex z_start;
         double complex * z_startPtr = &z_start;
         struct newton_result result;
@@ -443,7 +443,7 @@ write_pixels(unsigned int start, unsigned int end, FILE *file_attr,
     FILE *file_conv, char **attr_colors, char **conv_colors, int attr_pixel_size, 
     int conv_pixel_size)
 {
-    for(int i = start; i < end; i++) {
+    for(unsigned int i = start; i < end; i++) {
         if (i % LINE_COUNT == 0) {
             char nl = '\n';
             fwrite(&nl, sizeof(char), 1, file_attr);
@@ -455,8 +455,7 @@ write_pixels(unsigned int start, unsigned int end, FILE *file_attr,
 
         // Print to convergence file
         unsigned int tmp = MIN(MAX_CONV_NBR, RESULT_CONV[i]);
-        for (int i = 0; i < 3; i++) 
-            fwrite(conv_colors[tmp], MAX_CONV_CHAR_SIZE + 1, 1, file_conv); 
+        fwrite(conv_colors[tmp], MAX_CONV_CHAR_SIZE + 1, 1, file_conv); 
     }
 
     return;
@@ -505,6 +504,9 @@ run_write()
 
     free(attr_colors);
     free(attr_colors[0]);
+
+    free(conv_colors);
+    free(conv_colors[0]);
 }
 
 void inline
