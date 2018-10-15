@@ -38,7 +38,7 @@
 
 // The maximum number of digits allowed as a color value for convergences
 #define MAX_CONV_CHAR_SIZE 3
-#define MAX_CONV_NBR 999
+#define MAX_CONV_NBR 100
 
 /* 
  * Global variables
@@ -55,9 +55,6 @@ double complex (*NEWTON_FUNC)(double complex);
 
 // "Exponential by squaring" function for calculating pow(z, D - 1)
 double complex (*POW_FUNC)(double complex);
-
-// Attractor ppm_pixel
-char **attr_ppm_pixels;
 
 // Solutions to the given equation
 double complex *SOL;
@@ -134,9 +131,11 @@ void perform_job(unsigned int start, unsigned int end);
 // Write thread
 void * run_write();
 void write_header(FILE *file_attr, FILE *file_conv);
-char ** generate_colors();
+char ** generate_attr_colors();
+char ** generate_conv_colors();
 static inline void write_pixels(unsigned int start, unsigned int end, FILE *file_attr,
-    FILE *file_conv, char **attr_colors, int attr_pixel_size);
+    FILE *file_conv, char **attr_colors, char **conv_colors, int attr_pixel_size,
+    int conv_pixel_size);
 
 /* 
  * Functions 
@@ -178,7 +177,7 @@ digit_count(int number)
 
 /* Heuristic function for generating different color values */
 char**
-generate_colors()
+generate_attr_colors()
 {
     int dim_digit_count = digit_count(D + 2);
     int pixel_size = (dim_digit_count + 1) * 3;
@@ -211,6 +210,25 @@ generate_colors()
         }
         pos = (pos + 1) % 3;
         base_value++;
+    }
+
+    return(array);
+}
+
+char**
+generate_conv_colors() {
+    
+    char *values = (char *)malloc(sizeof(char) * (MAX_CONV_NBR + 1) * (MAX_CONV_CHAR_SIZE + 2));
+    char **array = (char **)malloc(sizeof(char*) * (MAX_CONV_NBR + 1));
+    *array = values;
+    for (int i = 0, j = 0; i < MAX_CONV_NBR + 1; ++i, j += MAX_CONV_CHAR_SIZE + 2) {
+        array[i] = values + j;
+    } 
+
+    for (int i = 0; i < MAX_CONV_NBR + 1; i++) {
+        char output_conv[MAX_CONV_CHAR_SIZE + 2];
+        sprintf(output_conv, "%0*d ", MAX_CONV_CHAR_SIZE, i);
+        strcpy(array[i], output_conv);
     }
 
     return(array);
@@ -422,7 +440,8 @@ wait_for_job(const unsigned int job_index)
 /* Writes the result of a single job (in terms of pixels) to files */
 static inline void
 write_pixels(unsigned int start, unsigned int end, FILE *file_attr,
-    FILE *file_conv, char **attr_colors, int attr_pixel_size)
+    FILE *file_conv, char **attr_colors, char **conv_colors, int attr_pixel_size, 
+    int conv_pixel_size)
 {
     for(int i = start; i < end; i++) {
         if (i % LINE_COUNT == 0) {
@@ -435,14 +454,9 @@ write_pixels(unsigned int start, unsigned int end, FILE *file_attr,
         fwrite(attr_colors[RESULT_ATTR[i] + 1], attr_pixel_size, 1, file_attr);
 
         // Print to convergence file
-        RESULT_CONV[i] = MIN(MAX_CONV_NBR, RESULT_CONV[i]);
-
-        char output_conv[MAX_CONV_CHAR_SIZE + 2];
-        sprintf(output_conv, "%0*d ", MAX_CONV_CHAR_SIZE, RESULT_CONV[i]);
-
-        // Iterate and print equal RGB values (for gray scale)
-        for (int i = 0; i < 3; i++)
-            fwrite(output_conv, MAX_CONV_CHAR_SIZE + 1, 1, file_conv);
+        unsigned int tmp = MIN(MAX_CONV_NBR, RESULT_CONV[i]);
+        for (int i = 0; i < 3; i++) 
+            fwrite(conv_colors[tmp], MAX_CONV_CHAR_SIZE + 1, 1, file_conv); 
     }
 
     return;
@@ -461,9 +475,11 @@ run_write()
     // Write header to file
     write_header(file_attr, file_conv);
 
-    // Generate colors for the attractors
-    char **attr_colors = generate_colors();
+    // Generate colors
+    char **attr_colors = generate_attr_colors();
+    char **conv_colors = generate_conv_colors();
     int attr_pixel_size = (digit_count(D + 2) + 1) * 3;
+    int conv_pixel_size = MAX_CONV_CHAR_SIZE + 2;
 
     // Start writing
     /* printf("Write worker started\n"); */
@@ -479,7 +495,9 @@ run_write()
             file_attr, 
             file_conv,
             attr_colors,
-            attr_pixel_size);
+            conv_colors,
+            attr_pixel_size,
+            conv_pixel_size);
     }
 
     fclose(file_attr);
