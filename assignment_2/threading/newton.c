@@ -135,7 +135,7 @@ void perform_job(unsigned int start, unsigned int end);
 void * run_write();
 void write_header(FILE *file_attr, FILE *file_conv);
 char ** generate_colors();
-void write_pixels(unsigned int start, unsigned int end, FILE *file_attr,
+static inline void write_pixels(unsigned int start, unsigned int end, FILE *file_attr,
     FILE *file_conv, char **attr_colors, int attr_pixel_size);
 
 /* 
@@ -420,7 +420,7 @@ wait_for_job(const unsigned int job_index)
 }
 
 /* Writes the result of a single job (in terms of pixels) to files */
-void inline
+static inline void
 write_pixels(unsigned int start, unsigned int end, FILE *file_attr,
     FILE *file_conv, char **attr_colors, int attr_pixel_size)
 {
@@ -435,7 +435,7 @@ write_pixels(unsigned int start, unsigned int end, FILE *file_attr,
         fwrite(attr_colors[RESULT_ATTR[i] + 1], attr_pixel_size, 1, file_attr);
 
         // Print to convergence file
-        /* RESULT_CONV[i] = MIN(MAX_CONV_NBR, RESULT_CONV[i]); */
+        RESULT_CONV[i] = MIN(MAX_CONV_NBR, RESULT_CONV[i]);
 
         char output_conv[MAX_CONV_CHAR_SIZE + 2];
         sprintf(output_conv, "%0*d ", MAX_CONV_CHAR_SIZE, RESULT_CONV[i]);
@@ -486,6 +486,7 @@ run_write()
     fclose(file_conv);
 
     free(attr_colors);
+    free(attr_colors[0]);
 }
 
 void inline
@@ -603,4 +604,3 @@ main(int argc, char **argv) {
 
     return(0);
 }
-
