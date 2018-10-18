@@ -226,8 +226,12 @@ generate_conv_colors() {
     } 
 
     for (int i = 0; i < MAX_CONV_NBR + 1; i++) {
-        char output_conv[MAX_CONV_CHAR_SIZE + 2];
-        sprintf(output_conv, "%0*d ", MAX_CONV_CHAR_SIZE, i);
+        char output_conv[(MAX_CONV_CHAR_SIZE + 1) * 3 + 1];
+        sprintf(
+            output_conv, "%0*d %0*d %0*d ",
+            MAX_CONV_CHAR_SIZE, i,
+            MAX_CONV_CHAR_SIZE, i,
+            MAX_CONV_CHAR_SIZE, i);
         strcpy(array[i], output_conv);
     }
 
@@ -455,7 +459,7 @@ write_pixels(unsigned int start, unsigned int end, FILE *file_attr,
 
         // Print to convergence file
         unsigned int tmp = MIN(MAX_CONV_NBR, RESULT_CONV[i]);
-        fwrite(conv_colors[tmp], MAX_CONV_CHAR_SIZE + 1, 1, file_conv); 
+        fwrite(conv_colors[tmp], (MAX_CONV_CHAR_SIZE + 1)*3, 1, file_conv); 
     }
 
     return;
