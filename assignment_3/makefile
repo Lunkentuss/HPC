@@ -1,13 +1,15 @@
 CC=gcc
 FLAGS=-fopenmp -O3 -march=native
+INCLUDES=-Iutil
+LIBS=-lm
 
 
-all : test
+all : main
 
 .PHONY : clean
 
-test : test.c
-	$(CC) test.c $(FLAGS) -o test
+main : main.c
+	$(CC) main.c $(FLAGS) -o main $(INCLUDES) $(LIBS)
 
 clean : 
-	rm test
+	rm main

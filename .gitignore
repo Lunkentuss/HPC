@@ -8,3 +8,4 @@
 *.ppm
 *.html
 test.c
+cell*
