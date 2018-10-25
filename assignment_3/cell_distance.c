@@ -229,8 +229,12 @@ int main(int argc, char ** argv)
     omp_set_num_threads(THREAD_COUNT);
     int a = omp_get_num_threads();
     struct block_t b;
+    FILE * file = fopen("cells", "r");
+    fseek(file, 0, SEEK_END);
+
     b.idx1 = 0;
-    b.idx2 = 10;
+    b.idx2 = ftell(file) / SIZE_POINT_STR;
+
     count_distances(b);
     print_distances();
 
