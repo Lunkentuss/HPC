@@ -112,8 +112,7 @@ distance(const struct cell_point p1, const struct cell_point p2)
     int diff_z = p1.z - p2.z;
     sum += diff_z * diff_z;
 
-    sum = sum / FIXED_FACT;
-    float sum_f = FIXED_TO_FLOAT(sum);
+    float sum_f = FIXED_TO_FLOAT(sum) / FIXED_FACT;
     float dist = sqrt(sum_f);
     return dist;
 }
@@ -231,7 +230,7 @@ int main(int argc, char ** argv)
     int a = omp_get_num_threads();
     struct block_t b;
     b.idx1 = 0;
-    b.idx2 = 100000;
+    b.idx2 = 10;
     count_distances(b);
     print_distances();
 
