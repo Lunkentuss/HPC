@@ -13,7 +13,7 @@
 
 /* Global variables */
 int THREAD_COUNT;
-int * count;
+int count[3465];
 
 /* Structs */ 
 struct cell_point{
@@ -27,7 +27,7 @@ void usage();
 struct cell_point * read_points(struct block_t block);
 inline int parse_value(char * valuePtr);
 inline void parse_point(char * pointPtr, struct cell_point * point);
-inline float distance(struct cell_point p1, struct cell_point p2);
+inline float distance(const struct cell_point p1, const struct cell_point p2);
 
 void
 usage()
@@ -63,12 +63,10 @@ read_points(struct block_t block)
 
     struct cell_point * cell_points = (struct cell_point *) malloc(
         sizeof(struct cell_point) * read_count);
-    printf("Test1");
     #pragma omp parallel for
     for (int i = 0 ; i < read_count ; i++){
         parse_point(&points_str[i * SIZE_POINT_STR], &cell_points[i]);
     }
-    printf("Test2");
 
     // Free
     free(blocks);
@@ -101,41 +99,41 @@ parse_point(char * pointPtr, struct cell_point * point)
 }
 
 inline float
-distance(struct cell_point p1, struct cell_point p2)
+distance(const struct cell_point p1, const struct cell_point p2)
 {
     int sum = 0;
 
     int diff_x = p1.x - p2.x;
-    sum += FIXED_MULTIPLY(diff_x, diff_x);
+    sum += diff_x * diff_x;
 
     int diff_y = p1.y - p2.y;
-    sum += FIXED_MULTIPLY(diff_y, diff_y);
+    sum += diff_y * diff_y;
 
     int diff_z = p1.z - p2.z;
-    sum += FIXED_MULTIPLY(diff_z, diff_z);
+    sum += diff_z * diff_z;
 
+    sum = sum / FIXED_FACT;
     float sum_f = FIXED_TO_FLOAT(sum);
     float dist = sqrt(sum_f);
     return dist;
 }
 
-inline size_t 
+inline int
 dist_to_idx(const float dist)
 {
-    size_t idx = (size_t)(dist * OUTPUT_FACT);
+    int idx = (int)(dist * OUTPUT_FACT + 0.5);
     return idx;
 }
 
 inline void
-combinatorial_self(struct cell_point * points, int num_points)
+combinatorial_self(const struct cell_point * points, const int num_points)
 {
-    #pragma omp parallel for
+    #pragma omp parallel for schedule(dynamic, THREAD_COUNT) reduction(+:count)
     for(int i = 0 ; i < num_points ; i++){
         for(int j = i+1 ; j < num_points ; j++){
             float dist = distance(points[i], points[j]);
             size_t idx = dist_to_idx(dist);
-            #pragma omp atomic update 
-                count[idx] += 1;
+            count[idx] += 1;
         }
     }
 }
@@ -192,6 +190,25 @@ count_distances(const struct block_t block)
     }
 }
 
+void
+print_distances()
+{
+    int dist_integral = 0;
+    int dist_decimal = 0;
+    for (int i = 0 ; i < 3465 ; i++)
+    {
+        if (count[i] != 0){
+            printf("%0*d.%0*d", 2, dist_integral, 2, dist_decimal);
+            printf(" %d\n", count[i]);
+        }
+        dist_decimal++;
+        dist_decimal = dist_decimal % 100;
+        if (dist_decimal == 0){
+            dist_integral++;
+        }
+    }
+}
+
 int main(int argc, char ** argv)
 {
     THREAD_COUNT = 1;
@@ -210,22 +227,13 @@ int main(int argc, char ** argv)
         }
     }
 
-    count = (int *)calloc(3465, sizeof(int));
     omp_set_num_threads(THREAD_COUNT);
     int a = omp_get_num_threads();
     struct block_t b;
     b.idx1 = 0;
-    b.idx2 = 30000;
+    b.idx2 = 100000;
     count_distances(b);
+    print_distances();
 
-    int sum = 0;
-    /* for (int i = 0 ; i < 3465 ; i++) */
-    /* { */
-    /*     if (count[i] != 0){ */
-    /*         printf("%d\n", count[i]); */
-    /*         sum += count[i]; */
-    /*     } */
-    /* } */
-    /* printf("%d\n", sum); */
     return 0;
 }
