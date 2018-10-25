@@ -4,12 +4,12 @@ INCLUDES=-Iutil
 LIBS=-lm
 
 
-all : main
+all : cell_distance
 
 .PHONY : clean
 
-main : main.c
-	$(CC) main.c $(FLAGS) -o main $(INCLUDES) $(LIBS)
+cell_distance : cell_distance.c
+	$(CC) cell_distance.c $(FLAGS) -o cell_distance $(INCLUDES) $(LIBS)
 
 clean : 
-	rm main
+	rm cell_distance
