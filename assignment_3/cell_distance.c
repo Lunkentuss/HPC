@@ -77,12 +77,12 @@ static inline int
 parse_value(char * valuePtr)
 {
     int value = 0;
-    value += (int)(valuePtr[1] - '0') * (FIXED_FACT * 10);
-    value += (int)(valuePtr[2] - '0') * (FIXED_FACT * 1);
+    value += (int)(valuePtr[1] - '0') * (int)(FIXED_FACT * 10);
+    value += (int)(valuePtr[2] - '0') * (int)(FIXED_FACT * 1);
     // Skip
-    value += (int)(valuePtr[4] - '0') * (FIXED_FACT / 10);
-    value += (int)(valuePtr[5] - '0') * (FIXED_FACT / 100);
-    value += (int)(valuePtr[6] - '0') * (FIXED_FACT / 1000);
+    value += (int)(valuePtr[4] - '0') * (int)(FIXED_FACT / 10);
+    value += (int)(valuePtr[5] - '0') * (int)(FIXED_FACT / 100);
+    value += (int)(valuePtr[6] - '0') * (int)(FIXED_FACT / 1000);
     if (valuePtr[0] == '-'){
         value *= -1;
     }
@@ -111,7 +111,7 @@ distance(const struct cell_point p1, const struct cell_point p2)
     int diff_z = p1.z - p2.z;
     sum += diff_z * diff_z;
 
-    float sum_f = FIXED_TO_FLOAT(sum) / FIXED_FACT;
+    float sum_f = sum / 1000000.0;
     float dist = sqrtf(sum_f);
     return dist;
 }
