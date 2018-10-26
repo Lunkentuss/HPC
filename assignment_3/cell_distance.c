@@ -20,9 +20,9 @@ int count[SIZE_COUNT];
 /* Function declerations */
 void usage();
 struct cell_point * read_points(struct block_t block);
-inline int parse_value(char * valuePtr);
-inline void parse_point(char * pointPtr, struct cell_point * point);
-inline float distance(const struct cell_point p1, const struct cell_point p2);
+static inline int parse_value(char * valuePtr);
+static inline void parse_point(char * pointPtr, struct cell_point * point);
+static inline float distance(const struct cell_point p1, const struct cell_point p2);
 
 void
 usage()
@@ -69,7 +69,7 @@ read_points(struct block_t block)
     return cell_points;
 }
 
-inline int
+static inline int
 parse_value(char * valuePtr)
 {
     int value = 0;
@@ -85,7 +85,7 @@ parse_value(char * valuePtr)
     return value;
 }
 
-inline void
+static inline void
 parse_point(char * pointPtr, struct cell_point * point)
 {
     point->x = parse_value(&pointPtr[0 * SIZE_VALUE_STR]);
@@ -93,7 +93,7 @@ parse_point(char * pointPtr, struct cell_point * point)
     point->z = parse_value(&pointPtr[2 * SIZE_VALUE_STR]);
 }
 
-inline float
+static inline float
 distance(const struct cell_point p1, const struct cell_point p2)
 {
     int sum = 0;
@@ -112,14 +112,14 @@ distance(const struct cell_point p1, const struct cell_point p2)
     return dist;
 }
 
-inline int
+static inline int
 dist_to_idx(const float dist)
 {
     int idx = (int)(dist * OUTPUT_FACT + 0.5);
     return idx;
 }
 
-inline void
+static inline void
 combinatorial_self(const struct cell_point * points, const int num_points)
 {
     #pragma omp parallel for schedule(dynamic, THREAD_COUNT) reduction(+:count)
@@ -132,7 +132,7 @@ combinatorial_self(const struct cell_point * points, const int num_points)
     }
 }
 
-inline void
+static inline void
 combinatorial_other(
     struct cell_point * points_1,
     int num_points_1,
