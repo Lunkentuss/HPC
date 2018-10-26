@@ -6,6 +6,7 @@
 #include "block.h"
 #include "fixed_point.h"
 
+#define SIZE_COUNT 3465
 #define SIZE_BLOCK_READ 1000000
 #define SIZE_VALUE_STR 8
 #define SIZE_POINT_STR 24
@@ -13,7 +14,7 @@
 
 /* Global variables */
 int THREAD_COUNT;
-int count[3465];
+int count[SIZE_COUNT];
 
 /* Structs */ 
 struct cell_point{
@@ -144,23 +145,13 @@ combinatorial_other(
     struct cell_point * points_2,
     int num_points_2)
 {
-    size_t num_combinations = num_points_1 * num_points_2;
-    size_t * count_indexes = (size_t *) \
-        malloc(sizeof(size_t) * num_combinations); 
-
-    #pragma omp parallel for
+    #pragma omp parallel for schedule(dynamic, THREAD_COUNT) reduction(+:count)
     for(int i = 0 ; i < num_points_1 ; i++){
         for(int j = 0 ; j < num_points_2 ; j++){
             float dist = distance(points_1[i], points_2[j]);
             size_t idx = dist_to_idx(dist);
-
-            // i * num_points_2 + j is a bijective mapping
-            count_indexes[i * num_points_2 + j] = idx;
+            count[idx] += 1;
         }
-    }
-
-    for (int i = 0 ; i < num_combinations ; i++){
-        count[count_indexes[i]] += 1;
     }
 }
 
@@ -194,7 +185,7 @@ print_distances()
 {
     int dist_integral = 0;
     int dist_decimal = 0;
-    for (int i = 0 ; i < 3465 ; i++)
+    for (int i = 0 ; i < SIZE_COUNT; i++)
     {
         if (count[i] != 0){
             printf("%0*d.%0*d", 2, dist_integral, 2, dist_decimal);
@@ -210,6 +201,10 @@ print_distances()
 
 int main(int argc, char ** argv)
 {
+    for (int i = 0 ; i < SIZE_COUNT ; i++){
+        count[i] = 0;
+    }
+
     THREAD_COUNT = 1;
     int c;
     while((c = getopt_long(argc, argv, "t:", NULL, NULL))
