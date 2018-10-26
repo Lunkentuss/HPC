@@ -5,6 +5,7 @@
 #include <getopt.h>
 #include "block.h"
 #include "fixed_point.h"
+#include "point.h"
 
 #define SIZE_COUNT 3465
 #define SIZE_BLOCK_READ 1000000
@@ -15,13 +16,6 @@
 /* Global variables */
 int THREAD_COUNT;
 int count[SIZE_COUNT];
-
-/* Structs */ 
-struct cell_point{
-    int x;
-    int y;
-    int z;
-};
 
 /* Function declerations */
 void usage();
@@ -79,12 +73,12 @@ inline int
 parse_value(char * valuePtr)
 {
     int value = 0;
-    value += (int)(valuePtr[1] - '0') * FIXED_FACT * 10;
-    value += (int)(valuePtr[2] - '0') * FIXED_FACT;
+    value += (int)(valuePtr[1] - '0') * (FIXED_FACT * 10);
+    value += (int)(valuePtr[2] - '0') * (FIXED_FACT * 1);
     // Skip
-    value += (int)(valuePtr[4] - '0') * FIXED_FACT / 10;
-    value += (int)(valuePtr[5] - '0') * FIXED_FACT / 100;
-    value += (int)(valuePtr[6] - '0') * FIXED_FACT / 1000;
+    value += (int)(valuePtr[4] - '0') * (FIXED_FACT / 10);
+    value += (int)(valuePtr[5] - '0') * (FIXED_FACT / 100);
+    value += (int)(valuePtr[6] - '0') * (FIXED_FACT / 1000);
     if (valuePtr[0] == '-'){
         value *= -1;
     }
@@ -114,7 +108,7 @@ distance(const struct cell_point p1, const struct cell_point p2)
     sum += diff_z * diff_z;
 
     float sum_f = FIXED_TO_FLOAT(sum) / FIXED_FACT;
-    float dist = sqrt(sum_f);
+    float dist = sqrtf(sum_f);
     return dist;
 }
 
@@ -178,6 +172,7 @@ count_distances(const struct block_t block)
         }
         free(points_i);
     }
+    free(blocks);
 }
 
 void
@@ -222,7 +217,6 @@ int main(int argc, char ** argv)
     }
 
     omp_set_num_threads(THREAD_COUNT);
-    int a = omp_get_num_threads();
     struct block_t b;
     FILE * file = fopen("cells", "r");
     fseek(file, 0, SEEK_END);
