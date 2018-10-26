@@ -27,7 +27,11 @@ static inline float distance(const struct cell_point p1, const struct cell_point
 void
 usage()
 {
-    printf("Usage\n");
+printf("Synopsis: \n\
+\tcell_distances [-t n]\n\
+\n\
+\tWhere n is the number of threads for the program to use (default n=1).\n");
+exit(EXIT_FAILURE);
 }
 
 struct cell_point *
@@ -208,6 +212,10 @@ int main(int argc, char ** argv)
         {
             case 't':
                 THREAD_COUNT = atoi(optarg);
+                break;
+
+            case 'h':
+                usage();
                 break;
 
             default:
