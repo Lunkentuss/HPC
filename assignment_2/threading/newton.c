@@ -145,17 +145,17 @@ static inline void write_pixels(unsigned int start, unsigned int end, FILE *file
 void
 usage()
 {
-    printf("\
-    Synopsis: newton [OPTIONS] dim \n\
-    \n\
-    Where dim is the d=dim of the polynom x^d - 1 \n\
-    \n\
-    OPTIONS: \n\
-    \t-t n : Set the number of threads\n\
-    \t-l n : Set the number of lines \n\
-    \t-s n : Set the waiting time in nano seconds for the write thread \n\
-    \t-j n : Set the number of jobs per thread at one time \n\
-    ");
+printf("\
+Synopsis: newton [OPTIONS] dim \n\
+\n\
+Where dim is the d=dim of the polynom x^d - 1 \n\
+\n\
+OPTIONS: \n\
+\t-t n : Set the number of threads\n\
+\t-l n : Set the number of lines \n\
+\t-s n : Set the waiting time in nano seconds for the write thread \n\
+\t-j n : Set the number of jobs per thread at one time \n\
+");
     
     exit(EXIT_FAILURE);
 }
